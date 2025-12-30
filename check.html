@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Проверка Supabase</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        pre { background: #f5f5f5; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h2>🔧 Проверка подключения Supabase</h2>
+    
+    <div id="output"></div>
+    
+    <button onclick="runTests()">Запустить тесты</button>
+    
+    <script>
+    const SUPABASE_URL = 'https://potnqqwsaxnrrnuhoysb.supabase.co';
+    
+    async function runTests() {
+        const output = document.getElementById('output');
+        output.innerHTML = '<h3>🔍 Выполняю проверки...</h3>';
+        
+        // 1. Запросим ключ у пользователя
+        const userKey = prompt(
+            'Введите ANON PUBLIC ключ из Supabase Dashboard:\n' +
+            '(Dashboard → Settings → API → "anon public")',
+            localStorage.getItem('test_supabase_key') || ''
+        );
+        
+        if (!userKey) return;
+        localStorage.setItem('test_supabase_key', userKey);
+        
+        // 2. Создаем клиент
+        output.innerHTML += `<p>1. Создаю клиент с ключом длиной ${userKey.length}...</p>`;
+        
+        let supabase;
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, userKey);
+            output.innerHTML += '<p class="success">✅ Клиент создан</p>';
+        } catch (e) {
+            output.innerHTML += `<p class="error">❌ Ошибка: ${e.message}</p>`;
+            return;
+        }
+        
+        // 3. Проверяем таблицу users
+        output.innerHTML += '<p>2. Проверяю таблицу users...</p>';
+        try {
+            const { data, error } = await supabase
+                .from('users')
+                .select('email, role')
+                .limit(2);
+            
+            if (error) {
+                output.innerHTML += `<p class="error">❌ Ошибка: ${error.message}</p>`;
+                
+                if (error.message.includes('relation')) {
+                    output.innerHTML += '<p class="warning">📝 Совет: Создайте таблицу users через SQL Editor</p>';
+                }
+            } else {
+                output.innerHTML += `<p class="success">✅ Таблица найдена. Записей: ${data.length}</p>`;
+                if (data.length > 0) {
+                    output.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                }
+            }
+        } catch (e) {
+            output.innerHTML += `<p class="error">❌ Исключение: ${e.message}</p>`;
+        }
+        
+        // 4. Проверяем авторизацию
+        output.innerHTML += '<p>3. Тестирую авторизацию...</p>';
+        try {
+            const { data, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('email', 'student@school.ru')
+                .eq('password', '123')
+                .single();
+            
+            if (error || !data) {
+                output.innerHTML += `<p class="warning">⚠️ Тестовый пользователь не найден</p>`;
+                output.innerHTML += `<p>Добавьте пользователя SQL:</p>
+                <pre>INSERT INTO users (email, password, full_name, role) 
+VALUES ('student@school.ru', '123', 'Иван Иванов', 'student');</pre>`;
+            } else {
+                output.innerHTML += `<p class="success">✅ Авторизация работает! Пользователь: ${data.full_name}</p>`;
+            }
+        } catch (e) {
+            output.innerHTML += `<p class="error">❌ Ошибка: ${e.message}</p>`;
+        }
+        
+        // 5. Проверяем CORS
+        output.innerHTML += '<p>4. Проверяю CORS настройки...</p>';
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+                headers: { 'apikey': userKey }
+            });
+            output.innerHTML += `<p>Status: ${response.status} ${response.statusText}</p>`;
+        } catch (e) {
+            output.innerHTML += `<p class="warning">⚠️ CORS ошибка: ${e.message}</p>`;
+            output.innerHTML += `<p>Добавьте домен в Supabase Dashboard → Settings → API → CORS Origins:</p>
+            <ul>
+                <li>https://petr-susloparov.github.io</li>
+                <li>http://localhost</li>
+            </ul>`;
+        }
+    }
+    </script>
+</body>
+</html>
