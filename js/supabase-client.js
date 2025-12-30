@@ -4,7 +4,7 @@
 
 // ⚠️ ВАЖНО: Замените эти значения на свои!
 const SUPABASE_URL = 'https://potnqqwsaxnrrnuhoysb.supabase.co';
-const SUPABASE_ANON_KEY = 'ВАШ_ANON_PUBLIC_KEY'; // Из Dashboard → Settings → API
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvdG5xcXdzYXhucnJudWhveXNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwNzk1OTcsImV4cCI6MjA4MjY1NTU5N30._rjY-bDj3-eaymenBC1lge0z1YLshCEzV8KDJQRKxBQ'; // Из Dashboard → Settings → API
 
 // Проверяем наличие обязательных значений
 if (!SUPABASE_URL || SUPABASE_URL.includes('ваш-project-id')) {
