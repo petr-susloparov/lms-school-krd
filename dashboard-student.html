@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS - Личный кабинет ученика</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .dashboard-header {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 40px;
+        }
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .welcome-text h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+        }
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .homework-item {
+            border-left: 3px solid #3498db;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+        }
+        .homework-item.late {
+            border-left-color: #e74c3c;
+        }
+        .file-link {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="user-info">
+                <div class="welcome-text">
+                    <h1>Добро пожаловать, <span id="studentName">Алексей Сидоров</span>!</h1>
+                    <p>Класс: <span id="studentClass">10А</span></p>
+                </div>
+                <button id="logoutBtn" class="btn logout-btn">Выйти</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="cards-grid">
+            <div class="card">
+                <h3>📚 Текущие домашние задания</h3>
+                <div id="homeworksList">
+                    <!-- ДЗ будут загружены через JS -->
+                    <div class="homework-item">
+                        <h4>Домашняя работа по математике</h4>
+                        <p>Срок сдачи: <strong>20.03.2024</strong></p>
+                        <p>Учитель: Иванова М.П.</p>
+                        <a href="#" class="file-link">Скачать задание (PDF)</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>📊 Последние результаты</h3>
+                <div id="testResults">
+                    <!-- Результаты будут загружены через JS -->
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value">78/100</div>
+                            <div>Математика</div>
+                            <small>Пробник ЕГЭ №1</small>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">85/100</div>
+                            <div>Физика</div>
+                            <small>Контрольная работа</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>📅 Ближайшие дедлайны</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f1f2f6;">
+                        <th style="padding: 12px; text-align: left;">Предмет</th>
+                        <th style="padding: 12px; text-align: left;">Задание</th>
+                        <th style="padding: 12px; text-align: left;">Срок сдачи</th>
+                        <th style="padding: 12px; text-align: left;">Статус</th>
+                    </tr>
+                </thead>
+                <tbody id="deadlinesTable">
+                    <!-- Данные через JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/dashboard-student.js"></script>
+</body>
+</html>

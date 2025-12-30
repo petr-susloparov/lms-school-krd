@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Школа - Вход</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .login-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .role-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .role-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .role-btn.active {
+            border-color: #3498db;
+            background: #3498db;
+            color: white;
+        }
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-inner">
+                <div class="logo">
+                    <img src="assets/logo.png" alt="Логотип" class="logo-img">
+                    <div class="logo-text">
+                        <span class="logo-name">LMS Школа</span>
+                        <span class="logo-subtitle">school-krd.online</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="login-container">
+            <h2 class="login-title">Вход в систему</h2>
+            
+            <div class="role-selector">
+                <div class="role-btn active" data-role="student">Ученик</div>
+                <div class="role-btn" data-role="teacher">Учитель</div>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="vasya@school.ru" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" class="form-control" placeholder="Введите пароль" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    Войти в систему
+                </button>
+                
+                <div id="errorMessage" class="error-message">
+                    Неверный email или пароль
+                </div>
+            </form>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <small>Для теста используйте:<br>
+                Ученик: student@school.ru / 123<br>
+                Учитель: teacher@school.ru / 456</small>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
