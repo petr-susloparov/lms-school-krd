@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Проверка ключа Supabase</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 800px; margin: auto; }
+        .card { background: white; padding: 20px; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        pre { background: #f5f5f5; padding: 10px; overflow: auto; font-size: 12px; }
+        input, button { padding: 10px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔑 Проверка ключа Supabase</h1>
+    
+    <div class="card">
+        <h3>1. Введите ваш ключ:</h3>
+        <input type="text" id="keyInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." 
+               style="width: 100%; padding: 10px; margin-bottom: 10px;">
+        <button onclick="testKey()" style="background: #3498db; color: white; border: none; padding: 10px 20px;">
+            Проверить ключ
+        </button>
+    </div>
+    
+    <div class="card">
+        <h3>2. Результат проверки:</h3>
+        <div id="result"></div>
+    </div>
+    
+    <div class="card">
+        <h3>3. Инструкция:</h3>
+        <ol>
+            <li>Зайдите в <a href="https://app.supabase.com" target="_blank">Supabase Dashboard</a></li>
+            <li>Выберите проект <code>potnqqwsaxnrrnuhoysb</code></li>
+            <li>Нажмите ⚙️ <strong>Settings</strong> → <strong>API</strong></li>
+            <li>Скопируйте ключ из поля <strong>"anon public"</strong></li>
+            <li>Вставьте ключ выше и нажмите "Проверить ключ"</li>
+            <li>Если проверка пройдена, скопируйте ключ в файл <code>js/supabase-client.js</code></li>
+        </ol>
+        
+        <p><strong>Правильный формат ключа:</strong></p>
+        <pre>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvdG5xcXdzYXhucnJudWhveXNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU1NjQ0MDAsImV4cCI6MjA1MTE0MDQwMH0.9e4f0c8a2b5c3d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e</pre>
+        
+        <p><strong>Неправильный формат (старый):</strong></p>
+        <pre>sb_publishable_3MylWTVrctgP1TxRy_ykSw_PlOlO23l</pre>
+    </div>
+
+    <script>
+    async function testKey() {
+        const key = document.getElementById('keyInput').value.trim();
+        const resultDiv = document.getElementById('result');
+        
+        if (!key) {
+            resultDiv.innerHTML = '<p class="error">❌ Введите ключ</p>';
+            return;
+        }
+        
+        // Проверка формата
+        const isJWT = /^eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+$/.test(key);
+        
+        if (!isJWT) {
+            resultDiv.innerHTML = `
+                <p class="error">❌ Неверный формат ключа</p>
+                <p>Ваш ключ должен быть JWT токеном (начинаться с eyJ...)</p>
+                <p>Длина вашего ключа: ${key.length} символов</p>
+                <p>Вы используете старый формат ключа. Получите новый в Dashboard.</p>
+            `;
+            return;
+        }
+        
+        resultDiv.innerHTML = '<p>⏳ Проверяю ключ...</p>';
+        
+        try {
+            // Пробуем создать клиент
+            const supabaseTest = window.supabase.createClient(
+                'https://potnqqwsaxnrrnuhoysb.supabase.co',
+                key,
+                {
+                    auth: { persistSession: false }
+                }
+            );
+            
+            // Пробуем запрос
+            const { data, error } = await supabaseTest
+                .from('users')
+                .select('count')
+                .limit(1);
+            
+            if (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">❌ Ключ не работает</p>
+                    <p>Ошибка: ${error.message}</p>
+                    <p>Код ошибки: ${error.code || 'нет'}</p>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <p class="success">✅ Ключ работает!</p>
+                    <p>Ключ валидный, длина: ${key.length} символов</p>
+                    <p>Подключение к БД: УСПЕХ</p>
+                    <p><strong>Скопируйте этот ключ в файл <code>js/supabase-client.js</code>:</strong></p>
+                    <pre style="background: #e8f5e8;">const SUPABASE_ANON_KEY = '${key}';</pre>
+                    <button onclick="copyToClipboard('${key}')" style="background: #2ecc71; color: white; padding: 10px; border: none; border-radius: 5px;">
+                        📋 Скопировать ключ
+                    </button>
+                `;
+            }
+            
+        } catch (error) {
+            resultDiv.innerHTML = `
+                <p class="error">💥 Критическая ошибка</p>
+                <p>${error.message}</p>
+                <p>Проверьте CORS настройки в Supabase Dashboard → Settings → API</p>
+            `;
+        }
+    }
+    
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('✅ Ключ скопирован в буфер обмена');
+        });
+    }
+    
+    // Автоматически проверяем текущий ключ из localStorage
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedKey = localStorage.getItem('last_supabase_key');
+        if (savedKey) {
+            document.getElementById('keyInput').value = savedKey;
+        }
+    });
+    </script>
+</body>
+</html>
