@@ -1,15 +1,46 @@
 // ========================
-// AUTHENTICATION LOGIC
+// AUTHENTICATION LOGIC - ИСПРАВЛЕННАЯ ВЕРСИЯ
 // ========================
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔐 Система авторизации загружена');
     
+    // Ждем пока Supabase инициализируется
+    setTimeout(() => {
+        initAuthSystem();
+    }, 500);
+});
+
+async function initAuthSystem() {
     // Проверяем, инициализирован ли Supabase
     if (!window.supabase) {
         console.error('❌ Supabase не инициализирован!');
-        showError('Системная ошибка: база данных недоступна');
-        return;
+        
+        // Пытаемся инициализировать с безопасным ключом
+        const safeKey = await getSafeSupabaseKey();
+        
+        if (safeKey) {
+            try {
+                window.supabase = window.supabase.createClient(
+                    'https://potnqqwsaxnrrnuhoysb.supabase.co',
+                    safeKey,
+                    {
+                        auth: {
+                            persistSession: false,
+                            autoRefreshToken: false
+                        }
+                    }
+                );
+                console.log('✅ Supabase инициализирован с безопасным ключом');
+            } catch (e) {
+                console.error('💥 Ошибка инициализации:', e);
+                showFatalError('Не удалось подключиться к базе данных');
+                return;
+            }
+        } else {
+            showFatalError('Не удалось получить ключ Supabase');
+            return;
+        }
     }
     
     // Инициализация выбора роли
@@ -20,12 +51,123 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Проверяем, если пользователь уже авторизован
     checkExistingSession();
-});
+}
 
-// ========================
-// ФУНКЦИИ
-// ========================
+async function getSafeSupabaseKey() {
+    // Пробуем несколько источников ключей
+    const keySources = [
+        // 1. Из глобальной переменной
+        () => window.SUPABASE_ANON_KEY,
+        // 2. Из localStorage
+        () => localStorage.getItem('supabase_key'),
+        // 3. Запрашиваем у пользователя
+        () => promptUserForKey()
+    ];
+    
+    for (const getKey of keySources) {
+        try {
+            const key = await getKey();
+            if (key && isValidKey(key)) {
+                console.log('✅ Найден рабочий ключ');
+                return cleanKey(key);
+            }
+        } catch (e) {
+            console.warn('Ошибка получения ключа:', e);
+        }
+    }
+    
+    return null;
+}
 
+function cleanKey(key) {
+    if (!key) return '';
+    
+    // Удаляем все не-ASCII символы
+    let cleaned = key.replace(/[^\x00-\x7F]/g, '');
+    
+    // Удаляем пробелы и переносы строк
+    cleaned = cleaned.trim();
+    
+    // Если ключ в старом формате, преобразуем
+    if (cleaned.startsWith('sb_publishable_')) {
+        console.log('⚠️ Преобразую старый формат ключа');
+        // Берем только буквенно-цифровые символы
+        cleaned = cleaned.replace(/[^\w]/g, '');
+    }
+    
+    return cleaned;
+}
+
+function isValidKey(key) {
+    if (!key || key.length < 20) return false;
+    
+    // Проверяем форматы
+    const isJWT = /^eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+$/.test(key);
+    const isOldFormat = /^sb_publishable_[a-zA-Z0-9]+$/.test(key);
+    
+    return isJWT || isOldFormat;
+}
+
+function promptUserForKey() {
+    return prompt(
+        'Введите ключ Supabase:\n\n' +
+        'Получите его в Supabase Dashboard:\n' +
+        '1. Settings → API\n' +
+        '2. Скопируйте "anon public" ключ\n\n' +
+        'Ключ должен начинаться с eyJ...\n' +
+        'или sb_publishable_...',
+        ''
+    );
+}
+
+function showFatalError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #e74c3c;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        z-index: 10000;
+        max-width: 500px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    `;
+    
+    errorDiv.innerHTML = `
+        <strong>🚨 Ошибка:</strong> ${message}
+        <div style="margin-top: 10px;">
+            <button onclick="location.reload()" style="
+                background: white;
+                color: #e74c3c;
+                border: none;
+                padding: 5px 15px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-right: 10px;
+            ">
+                Обновить
+            </button>
+            <button onclick="this.parentElement.parentElement.remove()" style="
+                background: transparent;
+                color: white;
+                border: 1px solid white;
+                padding: 5px 15px;
+                border-radius: 4px;
+                cursor: pointer;
+            ">
+                Закрыть
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(errorDiv);
+}
+
+// Остальные функции остаются без изменений...
 function initRoleSelector() {
     const roleButtons = document.querySelectorAll('.role-btn');
     
@@ -63,12 +205,12 @@ function initLoginForm() {
         
         // Валидация
         if (!email || !password) {
-            showError('Введите email и пароль');
+            showLoginError('Введите email и пароль');
             return;
         }
         
         if (!validateEmail(email)) {
-            showError('Введите корректный email адрес');
+            showLoginError('Введите корректный email адрес');
             return;
         }
         
@@ -82,14 +224,10 @@ async function performLogin(email, password, role) {
     const submitBtn = document.querySelector('#loginForm button[type="submit"]');
     
     // Сбрасываем предыдущие ошибки
-    errorEl.style.display = 'none';
+    if (errorEl) errorEl.style.display = 'none';
     
     // Сохраняем оригинальный текст кнопки
     const originalText = submitBtn.textContent;
-    const originalState = {
-        text: submitBtn.textContent,
-        disabled: submitBtn.disabled
-    };
     
     try {
         // Показываем загрузку
@@ -105,22 +243,17 @@ async function performLogin(email, password, role) {
             .eq('email', email)
             .eq('password', password)
             .eq('role', role)
-            .single();
+            .maybeSingle(); // Используем maybeSingle вместо single
         
         // Проверяем результат
         if (error) {
             console.error('❌ Ошибка запроса:', error);
-            
-            if (error.code === 'PGRST116') {
-                showError('Пользователь не найден. Проверьте email, пароль и выбранную роль');
-            } else {
-                showError('Ошибка сервера: ' + error.message);
-            }
+            showLoginError('Ошибка сервера. Попробуйте позже.');
             return;
         }
         
         if (!data) {
-            showError('Пользователь не найден');
+            showLoginError('Пользователь не найден. Проверьте email, пароль и выбранную роль');
             return;
         }
         
@@ -135,13 +268,33 @@ async function performLogin(email, password, role) {
         
     } catch (error) {
         console.error('💥 Неожиданная ошибка:', error);
-        showError('Произошла непредвиденная ошибка: ' + error.message);
+        showLoginError('Произошла непредвиденная ошибка');
         
     } finally {
         // Восстанавливаем кнопку
-        submitBtn.textContent = originalState.text;
-        submitBtn.disabled = originalState.disabled;
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
     }
+}
+
+function showLoginError(message) {
+    const errorEl = document.getElementById('errorMessage');
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.style.display = 'block';
+        
+        // Автоматически скрыть через 5 секунд
+        setTimeout(() => {
+            errorEl.style.display = 'none';
+        }, 5000);
+    } else {
+        alert(message);
+    }
+}
+
+function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
 }
 
 function redirectToDashboard(role, userName) {
@@ -154,7 +307,7 @@ function redirectToDashboard(role, userName) {
         } else if (role === 'teacher') {
             window.location.href = 'dashboard-teacher.html';
         } else {
-            showError('Неизвестная роль пользователя');
+            showLoginError('Неизвестная роль пользователя');
         }
     }, 500);
 }
@@ -176,27 +329,6 @@ function checkExistingSession() {
     }
 }
 
-// Вспомогательные функции
-function showError(message) {
-    const errorEl = document.getElementById('errorMessage');
-    if (errorEl) {
-        errorEl.textContent = message;
-        errorEl.style.display = 'block';
-        
-        // Автоматически скрыть через 5 секунд
-        setTimeout(() => {
-            errorEl.style.display = 'none';
-        }, 5000);
-    } else {
-        alert(message);
-    }
-}
-
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-}
-
 // Глобальные функции для быстрого доступа
 window.continueAsUser = function() {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -216,6 +348,6 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         performLogin,
         validateEmail,
-        showError
+        showLoginError
     };
 }
