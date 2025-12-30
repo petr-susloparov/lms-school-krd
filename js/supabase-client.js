@@ -12,7 +12,7 @@ if (!SUPABASE_URL || SUPABASE_URL.includes('ваш-project-id')) {
     alert('Ошибка конфигурации: не задан URL Supabase');
 }
 
-if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('ВАШ_ANON_PUBLIC_KEY')) {
+if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvdG5xcXdzYXhucnJudWhveXNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwNzk1OTcsImV4cCI6MjA4MjY1NTU5N30._rjY-bDj3-eaymenBC1lge0z1YLshCEzV8KDJQRKxBQ')) {
     console.error('❌ ОШИБКА: Не задан SUPABASE_ANON_KEY');
     alert('Ошибка конфигурации: не задан ключ Supabase. Получите его в Dashboard → Settings → API → "anon public"');
 }
