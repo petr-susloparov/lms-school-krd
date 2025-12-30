@@ -3,40 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMS - Панель учителя</title>
+    <title>LMS - Панель управления</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .teacher-header {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-            color: white;
-            padding: 40px 0;
-            margin-bottom: 40px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .user-info {
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8f9fa;
+        }
+        
+        .header {
+            background: #2563eb;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
         }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-img {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #2563eb;
+            font-weight: bold;
+        }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .logo-subtitle {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+        }
+        
         .logout-btn {
             background: rgba(255,255,255,0.2);
             border: 1px solid rgba(255,255,255,0.3);
             color: white;
-            padding: 10px 20px;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
         }
+        
         .logout-btn:hover {
             background: rgba(255,255,255,0.3);
         }
+        
+        .main-content {
+            padding: 40px 0;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+        
+        .card h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
         .tabs {
             display: flex;
-            gap: 5px;
+            gap: 10px;
             margin-bottom: 30px;
             background: #f8f9fa;
             padding: 5px;
             border-radius: 10px;
             flex-wrap: wrap;
         }
+        
         .tab-btn {
             padding: 12px 25px;
             background: white;
@@ -47,57 +127,39 @@
             font-weight: 500;
             transition: all 0.3s;
             flex: 1;
-            min-width: 150px;
+            min-width: 200px;
             text-align: center;
         }
+        
         .tab-btn:hover {
             background: #f1f2f6;
         }
+        
         .tab-btn.active {
-            background: #2ecc71;
+            background: #2563eb;
             color: white;
-            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
         }
+        
         .tab-content {
             display: none;
-            animation: fadeIn 0.3s;
         }
+        
         .tab-content.active {
             display: block;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .form-card {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            margin-bottom: 30px;
-        }
-        .form-card h3 {
-            margin-top: 0;
-            color: #2c3e50;
-            border-bottom: 2px solid #2ecc71;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-        }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
-        }
+        
         .form-group {
             margin-bottom: 20px;
         }
+        
         .form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
             color: #34495e;
         }
+        
         .form-control {
             width: 100%;
             padding: 12px 15px;
@@ -106,43 +168,105 @@
             font-size: 16px;
             transition: all 0.3s;
         }
+        
         .form-control:focus {
             outline: none;
-            border-color: #2ecc71;
-            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
         }
+        
         textarea.form-control {
             min-height: 120px;
             resize: vertical;
         }
-        .homework-list {
+        
+        .student-select {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .student-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 5px;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .student-option:hover {
+            background: #f1f2f6;
+        }
+        
+        .student-option.selected {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        
+        .homeworks-list {
             display: grid;
             gap: 20px;
         }
+        
         .homework-card {
             border: 1px solid #e0e6ed;
             padding: 20px;
             border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
             background: white;
         }
+        
         .homework-card:hover {
-            border-color: #2ecc71;
-            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.1);
+            border-color: #2563eb;
         }
-        .homework-info h4 {
+        
+        .homework-info h3 {
             margin: 0 0 8px 0;
             color: #2c3e50;
         }
+        
         .homework-meta {
             display: flex;
             gap: 15px;
             color: #7f8c8d;
             font-size: 14px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
         }
+        
+        .assigned-to {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
         .btn-danger {
             background: #e74c3c;
             color: white;
@@ -150,96 +274,105 @@
             padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: 500;
+            font-size: 14px;
         }
+        
         .btn-danger:hover {
             background: #c0392b;
         }
-        .empty-state {
+        
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d1f7c4;
+            color: #27ae60;
+            border: 1px solid #a3e9a3;
+        }
+        
+        .message.error {
+            background: #ffeaea;
+            color: #e74c3c;
+            border: 1px solid #ffcccc;
+        }
+        
+        .loading {
             text-align: center;
-            padding: 50px 20px;
+            padding: 40px;
             color: #7f8c8d;
         }
-        .empty-state img {
-            width: 80px;
-            opacity: 0.5;
-            margin-bottom: 20px;
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
         }
-        .stats-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-        }
-        .stat-number {
-            font-size: 36px;
-            font-weight: bold;
-            color: #2ecc71;
-            margin-bottom: 10px;
+        
+        @media (max-width: 768px) {
+            .tab-btn {
+                min-width: 100%;
+            }
+            
+            .main-content {
+                padding: 20px 0;
+            }
+            
+            .card {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="teacher-header">
+    <header class="header">
         <div class="container">
-            <div class="user-info">
-                <div>
-                    <h1 style="margin: 0 0 10px 0;">👩‍🏫 Панель управления учителя</h1>
-                    <p>Учитель: <span id="teacherName">Иванова Мария Петровна</span></p>
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-img">👩‍🏫</div>
+                    <div class="logo-text">
+                        <span class="logo-name">LMS Школа</span>
+                        <span class="logo-subtitle">Панель управления</span>
+                    </div>
                 </div>
-                <button id="logoutBtn" class="btn logout-btn">
-                    🚪 Выйти из системы
-                </button>
+                <button id="logoutBtn" class="logout-btn">Выйти</button>
             </div>
         </div>
-    </div>
+    </header>
 
-    <div class="container">
-        <!-- Статистика -->
-        <div class="stats-cards">
-            <div class="stat-card">
-                <div class="stat-number" id="totalStudents">0</div>
-                <div>Учеников</div>
+    <main class="main-content">
+        <div class="container">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="add-homework">Создать задание</button>
+                <button class="tab-btn" data-tab="my-homeworks">Мои задания</button>
+                <button class="tab-btn" data-tab="add-test">Добавить результат</button>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalHomeworks">0</div>
-                <div>Заданий создано</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="pendingHomeworks">0</div>
-                <div>Текущих заданий</div>
-            </div>
-        </div>
-        
-        <!-- Вкладки -->
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="add-homework">
-                ➕ Добавить ДЗ
-            </button>
-            <button class="tab-btn" data-tab="my-homeworks">
-                📋 Мои задания
-            </button>
-            <button class="tab-btn" data-tab="add-test">
-                📊 Добавить оценку
-            </button>
-            <button class="tab-btn" data-tab="students">
-                👥 Ученики
-            </button>
-        </div>
-        
-        <!-- Вкладка 1: Добавление ДЗ -->
-        <div id="add-homework" class="tab-content active">
-            <div class="form-card">
-                <h3>Создать новое домашнее задание</h3>
-                <form id="addHomeworkForm">
-                    <div class="form-grid">
+            
+            <!-- Вкладка: Создать задание -->
+            <div id="add-homework" class="tab-content active">
+                <div class="card">
+                    <h2>Создать новое задание</h2>
+                    <form id="addHomeworkForm">
+                        <div class="form-group">
+                            <label>Название задания</label>
+                            <input type="text" id="title" class="form-control" 
+                                   placeholder="Домашняя работа по математике" required>
+                        </div>
+                        
                         <div class="form-group">
                             <label>Предмет</label>
                             <select id="subject" class="form-control" required>
@@ -256,58 +389,52 @@
                             <label>Срок сдачи</label>
                             <input type="date" id="dueDate" class="form-control" required>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Название задания</label>
-                        <input type="text" id="title" class="form-control" 
-                               placeholder="Домашняя работа по математике от 15.03" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Описание задания</label>
-                        <textarea id="description" class="form-control" rows="4"
-                                  placeholder="Подробное описание задания, требования, дополнительные материалы..."></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Ссылка на файл с заданием (если есть)</label>
-                        <input type="url" id="fileUrl" class="form-control" 
-                               placeholder="https://drive.google.com/... или https://disk.yandex.ru/...">
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary" style="padding: 14px 30px;">
-                        📤 Опубликовать задание
-                    </button>
-                    
-                    <div id="homeworkMessage" style="margin-top: 15px; display: none;"></div>
-                </form>
+                        
+                        <div class="form-group">
+                            <label>Описание задания</label>
+                            <textarea id="description" class="form-control" rows="4"
+                                      placeholder="Подробное описание задания..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Ссылка на файл (если есть)</label>
+                            <input type="url" id="fileUrl" class="form-control" 
+                                   placeholder="https://...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Выберите ученика</label>
+                            <div id="studentsList" class="student-select loading">
+                                Загрузка списка учеников...
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Создать задание</button>
+                        
+                        <div id="homeworkMessage" class="message"></div>
+                    </form>
+                </div>
             </div>
-        </div>
-        
-        <!-- Вкладка 2: Список ДЗ -->
-        <div id="my-homeworks" class="tab-content">
-            <div class="form-card">
-                <h3>Опубликованные задания</h3>
-                <div id="homeworksList" class="homework-list">
-                    <div class="empty-state">
-                        <div>📭</div>
-                        <p>У вас пока нет домашних заданий</p>
+            
+            <!-- Вкладка: Мои задания -->
+            <div id="my-homeworks" class="tab-content">
+                <div class="card">
+                    <h2>Созданные задания</h2>
+                    <div id="homeworksList" class="loading">
+                        Загрузка заданий...
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Вкладка 3: Добавление оценок -->
-        <div id="add-test" class="tab-content">
-            <div class="form-card">
-                <h3>Добавить результат теста</h3>
-                <form id="addTestForm">
-                    <div class="form-grid">
+            
+            <!-- Вкладка: Добавить результат -->
+            <div id="add-test" class="tab-content">
+                <div class="card">
+                    <h2>Добавить результат теста</h2>
+                    <form id="addTestForm">
                         <div class="form-group">
-                            <label>Ученик</label>
-                            <select id="studentSelect" class="form-control" required>
-                                <option value="">Выберите ученика...</option>
+                            <label>Выберите ученика</label>
+                            <select id="testStudentSelect" class="form-control" required>
+                                <option value="">Загрузка...</option>
                             </select>
                         </div>
                         
@@ -319,23 +446,13 @@
                                 <option value="Информатика">Информатика</option>
                             </select>
                         </div>
-                    </div>
-                    
-                    <div class="form-grid">
+                        
                         <div class="form-group">
                             <label>Название теста</label>
                             <input type="text" id="testName" class="form-control" 
-                                   placeholder="Пробник ЕГЭ №1" required>
+                                   placeholder="Пробный экзамен" required>
                         </div>
                         
-                        <div class="form-group">
-                            <label>Дата теста</label>
-                            <input type="date" id="testDate" class="form-control" 
-                                   value="<?php echo date('Y-m-d'); ?>">
-                        </div>
-                    </div>
-                    
-                    <div class="form-grid">
                         <div class="form-group">
                             <label>Баллы</label>
                             <input type="number" id="score" class="form-control" 
@@ -347,53 +464,19 @@
                             <input type="number" id="maxScore" class="form-control" 
                                    value="100" min="1" required>
                         </div>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary" style="padding: 14px 30px;">
-                        💾 Сохранить результат
-                    </button>
-                </form>
-            </div>
-        </div>
-        
-        <!-- Вкладка 4: Ученики -->
-        <div id="students" class="tab-content">
-            <div class="form-card">
-                <h3>Список учеников</h3>
-                <div id="studentsList">
-                    <div class="loading">Загрузка списка учеников...</div>
+                        
+                        <button type="submit" class="btn btn-primary">Сохранить результат</button>
+                        
+                        <div id="testMessage" class="message"></div>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- Подключаем скрипты -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
     <script src="js/teacher-dashboard.js"></script>
-    
-    <script>
-    // Управление вкладками
-    document.addEventListener('DOMContentLoaded', function() {
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const tabId = this.dataset.tab;
-                
-                // Обновляем активные элементы
-                tabBtns.forEach(b => b.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-                
-                this.classList.add('active');
-                document.getElementById(tabId).classList.add('active');
-                
-                // Загружаем данные для активной вкладки
-                console.log('Переключено на вкладку:', tabId);
-            });
-        });
-    });
-    </script>
 </body>
 </html>
