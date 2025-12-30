@@ -115,5 +115,45 @@
 
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
+
+    <script>
+        // Отладочная информация
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== LMS DEBUG INFO ===');
+            console.log('Supabase URL:', supabase.supabaseUrl);
+            console.log('LocalStorage user:', localStorage.getItem('user'));
+            
+            // Тестовый вход в консоли
+            window.testLogin = async function() {
+                const testEmail = 'student@school.ru';
+                const testPass = '123';
+                
+                console.log('🧪 Тестовый вход:', testEmail);
+                
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('email', testEmail)
+                    .eq('password', testPass)
+                    .single();
+                
+                console.log('Результат:', { data, error });
+                
+                if (data) {
+                    console.log('✅ Успех! Можно войти с этими данными');
+                    return data;
+                } else {
+                    console.log('❌ Ошибка:', error);
+                    return null;
+                }
+            };
+            
+            // Автоматически проверить тестового пользователя
+            setTimeout(() => {
+                console.log('Проверяю тестового пользователя...');
+                window.testLogin();
+            }, 1000);
+        });
+        </script>
 </body>
 </html>
