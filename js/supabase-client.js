@@ -1,0 +1,34 @@
+// ========================
+// SUPABASE CONFIGURATION
+// ========================
+
+// ⚠️ ВАЖНО: Замените эти значения на свои!
+const SUPABASE_URL = 'https://potnqqwsaxnrrnuhoysb.supabase.co';
+const SUPABASE_ANON_KEY = 'ВАШ_ANON_PUBLIC_KEY'; // Из Dashboard → Settings → API
+
+// Проверяем наличие обязательных значений
+if (!SUPABASE_URL || SUPABASE_URL.includes('ваш-project-id')) {
+    console.error('❌ ОШИБКА: Не задан SUPABASE_URL');
+    alert('Ошибка конфигурации: не задан URL Supabase');
+}
+
+if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('ВАШ_ANON_PUBLIC_KEY')) {
+    console.error('❌ ОШИБКА: Не задан SUPABASE_ANON_KEY');
+    alert('Ошибка конфигурации: не задан ключ Supabase. Получите его в Dashboard → Settings → API → "anon public"');
+}
+
+// Создаем глобальный клиент Supabase
+try {
+    window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('✅ Supabase клиент инициализирован');
+    console.log('📡 URL:', SUPABASE_URL);
+    console.log('🔑 Длина ключа:', SUPABASE_ANON_KEY.length);
+} catch (error) {
+    console.error('💥 Ошибка инициализации Supabase:', error);
+    alert('Критическая ошибка: не удалось инициализировать базу данных');
+}
+
+// Экспортируем для использования в других модулях
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { supabase: window.supabase };
+}

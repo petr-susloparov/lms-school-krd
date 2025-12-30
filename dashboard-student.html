@@ -6,7 +6,7 @@
     <title>LMS - Личный кабинет ученика</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .dashboard-header {
+        .student-header {
             background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
             color: white;
             padding: 40px 0;
@@ -16,6 +16,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
         }
         .welcome-text h1 {
             margin: 0 0 10px 0;
@@ -25,129 +27,254 @@
             background: rgba(255,255,255,0.2);
             border: 1px solid rgba(255,255,255,0.3);
             color: white;
+            padding: 10px 20px;
+        }
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
         }
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
             margin-bottom: 40px;
         }
         .card {
             background: white;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
         }
         .card h3 {
             margin-top: 0;
             color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .homework-item {
-            border-left: 3px solid #3498db;
-            padding: 15px;
-            margin-bottom: 15px;
-            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 18px;
+            margin-bottom: 18px;
+            background: #f8fafc;
+            border-radius: 0 8px 8px 0;
         }
         .homework-item.late {
             border-left-color: #e74c3c;
+            background: #fff5f5;
+        }
+        .homework-item.upcoming {
+            border-left-color: #f39c12;
+            background: #fff9e6;
         }
         .file-link {
             display: inline-block;
             background: #3498db;
             color: white;
-            padding: 5px 15px;
-            border-radius: 5px;
+            padding: 8px 18px;
+            border-radius: 6px;
             text-decoration: none;
-            margin-top: 10px;
+            margin-top: 12px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        .file-link:hover {
+            background: #2980b9;
+            text-decoration: none;
         }
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
             margin-top: 20px;
         }
         .stat-box {
             text-align: center;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
+            padding: 20px 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            border: 1px solid #e0e6ed;
         }
         .stat-value {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             color: #3498db;
+            margin-bottom: 5px;
+        }
+        .deadlines-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .deadlines-table th {
+            background: #f1f2f6;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e0e6ed;
+        }
+        .deadlines-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e6ed;
+        }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-urgent {
+            background: #ffeaa7;
+            color: #d35400;
+        }
+        .status-normal {
+            background: #d1f7c4;
+            color: #27ae60;
+        }
+        .status-late {
+            background: #ffcccc;
+            color: #c0392b;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+        .empty-state img {
+            width: 100px;
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="dashboard-header">
+    <div class="student-header">
         <div class="container">
             <div class="user-info">
                 <div class="welcome-text">
-                    <h1>Добро пожаловать, <span id="studentName">Алексей Сидоров</span>!</h1>
-                    <p>Класс: <span id="studentClass">10А</span></p>
+                    <h1>Добро пожаловать, <span id="studentName">Ученик</span>!</h1>
+                    <p>Класс: <span id="studentClass">-</span> | Роль: Ученик</p>
                 </div>
-                <button id="logoutBtn" class="btn logout-btn">Выйти</button>
+                <div>
+                    <button id="logoutBtn" class="btn logout-btn">
+                        🚪 Выйти из системы
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="container">
         <div class="cards-grid">
+            <!-- Карточка с домашними заданиями -->
             <div class="card">
-                <h3>📚 Текущие домашние задания</h3>
-                <div id="homeworksList">
-                    <!-- ДЗ будут загружены через JS -->
-                    <div class="homework-item">
-                        <h4>Домашняя работа по математике</h4>
-                        <p>Срок сдачи: <strong>20.03.2024</strong></p>
-                        <p>Учитель: Иванова М.П.</p>
-                        <a href="#" class="file-link">Скачать задание (PDF)</a>
-                    </div>
+                <h3>📚 Текущие задания</h3>
+                <div id="homeworksList" class="loading">
+                    Загрузка заданий...
                 </div>
             </div>
             
+            <!-- Карточка с результатами -->
             <div class="card">
-                <h3>📊 Последние результаты</h3>
+                <h3>📊 Успеваемость</h3>
                 <div id="testResults">
-                    <!-- Результаты будут загружены через JS -->
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <div class="stat-value">78/100</div>
-                            <div>Математика</div>
-                            <small>Пробник ЕГЭ №1</small>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value">85/100</div>
-                            <div>Физика</div>
-                            <small>Контрольная работа</small>
-                        </div>
-                    </div>
+                    <div class="loading">Загрузка результатов...</div>
                 </div>
             </div>
         </div>
         
+        <!-- Таблица дедлайнов -->
         <div class="card">
             <h3>📅 Ближайшие дедлайны</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background: #f1f2f6;">
-                        <th style="padding: 12px; text-align: left;">Предмет</th>
-                        <th style="padding: 12px; text-align: left;">Задание</th>
-                        <th style="padding: 12px; text-align: left;">Срок сдачи</th>
-                        <th style="padding: 12px; text-align: left;">Статус</th>
-                    </tr>
-                </thead>
-                <tbody id="deadlinesTable">
-                    <!-- Данные через JS -->
-                </tbody>
-            </table>
+            <div id="deadlinesContainer">
+                <table class="deadlines-table">
+                    <thead>
+                        <tr>
+                            <th>Предмет</th>
+                            <th>Задание</th>
+                            <th>Срок сдачи</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deadlinesTable">
+                        <tr>
+                            <td colspan="5" class="loading">Загрузка данных...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Быстрые действия -->
+        <div class="card">
+            <h3>⚡ Быстрые действия</h3>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button onclick="refreshData()" class="btn" style="background: #3498db; color: white;">
+                    🔄 Обновить данные
+                </button>
+                <button onclick="showAllHomeworks()" class="btn" style="background: #2ecc71; color: white;">
+                    📋 Все задания
+                </button>
+                <button onclick="showStatistics()" class="btn" style="background: #9b59b6; color: white;">
+                    📈 Статистика
+                </button>
+                <button onclick="window.location.href='index.html'" class="btn" style="background: #95a5a6; color: white;">
+                    🔙 На главную
+                </button>
+            </div>
         </div>
     </div>
 
-    <script src="js/supabase-config.js"></script>
-    <script src="js/dashboard-student.js"></script>
+    <!-- Подключаем скрипты -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/student-dashboard.js"></script>
+    
+    <script>
+    // Глобальные функции для кнопок
+    function refreshData() {
+        console.log('Обновление данных...');
+        if (window.loadStudentData) {
+            window.loadStudentData();
+        }
+    }
+    
+    function showAllHomeworks() {
+        alert('Функция "Все задания" в разработке');
+    }
+    
+    function showStatistics() {
+        alert('Функция "Статистика" в разработке');
+    }
+    </script>
 </body>
 </html>

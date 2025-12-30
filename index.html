@@ -3,100 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMS Школа - Вход</title>
+    <title>LMS Школа - Вход в систему</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
     <style>
         .login-container {
             max-width: 400px;
-            margin: 100px auto;
+            margin: 80px auto;
             padding: 40px;
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         .login-title {
             text-align: center;
             margin-bottom: 30px;
             color: #2c3e50;
+            font-size: 24px;
         }
         .form-group {
             margin-bottom: 20px;
         }
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: 600;
+            color: #34495e;
         }
         .form-control {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 12px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
             font-size: 16px;
+            transition: all 0.3s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
         .role-selector {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            padding: 5px;
+            border-radius: 8px;
         }
         .role-btn {
             flex: 1;
-            padding: 10px;
-            border: 2px solid #ddd;
+            padding: 12px;
+            border: none;
             background: white;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
             text-align: center;
+            font-weight: 500;
+            transition: all 0.3s;
         }
         .role-btn.active {
-            border-color: #3498db;
             background: #3498db;
             color: white;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
         }
         .error-message {
             color: #e74c3c;
-            margin-top: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: #ffeaea;
+            border-radius: 6px;
             display: none;
+            font-size: 14px;
+        }
+        .test-credentials {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+        .logo-main {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .logo-main h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .logo-main p {
+            color: #7f8c8d;
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="header-inner">
-                <div class="logo">
-                    <img src="assets/logo.png" alt="Логотип" class="logo-img">
-                    <div class="logo-text">
-                        <span class="logo-name">LMS Школа</span>
-                        <span class="logo-subtitle">school-krd.online</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="container">
+    <div class="container">
         <div class="login-container">
+            <div class="logo-main">
+                <h1>🏫 LMS Школа</h1>
+                <p>school-krd.online</p>
+            </div>
+            
             <h2 class="login-title">Вход в систему</h2>
             
             <div class="role-selector">
-                <div class="role-btn active" data-role="student">Ученик</div>
-                <div class="role-btn" data-role="teacher">Учитель</div>
+                <div class="role-btn active" data-role="student">
+                    👨‍🎓 Ученик
+                </div>
+                <div class="role-btn" data-role="teacher">
+                    👩‍🏫 Учитель
+                </div>
             </div>
             
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" class="form-control" placeholder="vasya@school.ru" required>
+                    <label for="email">Email адрес</label>
+                    <input type="email" id="email" class="form-control" 
+                           placeholder="vasya@school.ru" required
+                           value="student@school.ru">
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Пароль</label>
-                    <input type="password" id="password" class="form-control" placeholder="Введите пароль" required>
+                    <input type="password" id="password" class="form-control" 
+                           placeholder="Введите пароль" required
+                           value="123">
                 </div>
                 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px;">
                     Войти в систему
                 </button>
                 
@@ -105,55 +139,53 @@
                 </div>
             </form>
             
-            <div style="margin-top: 20px; text-align: center;">
-                <small>Для теста используйте:<br>
+            <div class="test-credentials">
+                <strong>Тестовые данные:</strong><br>
                 Ученик: student@school.ru / 123<br>
-                Учитель: teacher@school.ru / 456</small>
+                Учитель: teacher@school.ru / 456
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="quickLogin('student')" class="btn" style="background: #3498db; color: white; margin: 5px;">
+                    Быстрый вход как Ученик
+                </button>
+                <button onclick="quickLogin('teacher')" class="btn" style="background: #2ecc71; color: white; margin: 5px;">
+                    Быстрый вход как Учитель
+                </button>
             </div>
         </div>
-    </main>
+    </div>
 
-    <script src="js/supabase-config.js"></script>
+    <!-- Подключаем скрипты в правильном порядке -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
     <script src="js/auth.js"></script>
-
+    
     <script>
-        // Отладочная информация
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('=== LMS DEBUG INFO ===');
-            console.log('Supabase URL:', supabase.supabaseUrl);
-            console.log('LocalStorage user:', localStorage.getItem('user'));
-            
-            // Тестовый вход в консоли
-            window.testLogin = async function() {
-                const testEmail = 'student@school.ru';
-                const testPass = '123';
-                
-                console.log('🧪 Тестовый вход:', testEmail);
-                
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('email', testEmail)
-                    .eq('password', testPass)
-                    .single();
-                
-                console.log('Результат:', { data, error });
-                
-                if (data) {
-                    console.log('✅ Успех! Можно войти с этими данными');
-                    return data;
-                } else {
-                    console.log('❌ Ошибка:', error);
-                    return null;
-                }
-            };
-            
-            // Автоматически проверить тестового пользователя
-            setTimeout(() => {
-                console.log('Проверяю тестового пользователя...');
-                window.testLogin();
-            }, 1000);
+    // Функции быстрого входа
+    async function quickLogin(role) {
+        const credentials = {
+            student: { email: 'student@school.ru', password: '123' },
+            teacher: { email: 'teacher@school.ru', password: '456' }
+        };
+        
+        const { email, password } = credentials[role];
+        
+        // Устанавливаем значения в форму
+        document.getElementById('email').value = email;
+        document.getElementById('password').value = password;
+        
+        // Устанавливаем активную роль
+        document.querySelectorAll('.role-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.role === role) {
+                btn.classList.add('active');
+            }
         });
-        </script>
+        
+        // Отправляем форму
+        document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+    }
+    </script>
 </body>
 </html>
