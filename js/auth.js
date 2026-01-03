@@ -1,9 +1,6 @@
-// AUTHENTICATION LOGIC - ПРОСТЫЕ ПАРОЛИ
+// AUTHENTICATION LOGIC
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔐 Авторизация загружена');
-    
-    // Проверяем, авторизован ли пользователь
-    checkExistingSession();
     
     if (!window.supabase) {
         showError('База данных недоступна');
@@ -12,26 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     initRoleTabs();
     initLoginForm();
-    
-    // Заполняем демо данные для удобства тестирования
     setupDemoData();
 });
-
-function checkExistingSession() {
-    const user = localStorage.getItem('user');
-    if (user) {
-        try {
-            const userData = JSON.parse(user);
-            if (userData.role === 'student') {
-                window.location.href = 'dashboard-student.html';
-            } else if (userData.role === 'teacher') {
-                window.location.href = 'dashboard-teacher.html';
-            }
-        } catch (e) {
-            localStorage.removeItem('user');
-        }
-    }
-}
 
 function initRoleTabs() {
     const tabs = document.querySelectorAll('.role-tab');
@@ -63,7 +42,6 @@ function initLoginForm() {
             return;
         }
         
-        // Простая валидация email
         if (!email.includes('@')) {
             showError('Введите корректный email');
             return;
@@ -75,7 +53,7 @@ function initLoginForm() {
 
 async function loginUser(email, password, role) {
     const errorEl = document.getElementById('errorMessage');
-    const submitBtn = document.querySelector('#loginForm button[type="submit"]');
+    const submitBtn = document.getElementById('loginBtn');
     const btnText = submitBtn.querySelector('.btn-text');
     const btnLoading = submitBtn.querySelector('.btn-loading');
     
@@ -88,14 +66,12 @@ async function loginUser(email, password, role) {
     submitBtn.disabled = true;
     
     try {
-        console.log(`🔑 Попытка входа: ${email}, роль: ${role}`);
-        
         // Ищем пользователя по email, паролю и роли
         const { data: users, error } = await window.supabase
             .from('users')
             .select('id, email, password, role, full_name, class_name')
             .eq('email', email)
-            .eq('password', password) // Прямое сравнение пароля
+            .eq('password', password)
             .eq('role', role);
         
         if (error) {
@@ -103,14 +79,11 @@ async function loginUser(email, password, role) {
             throw new Error('Ошибка подключения к базе данных');
         }
         
-        console.log('Найдены пользователи:', users);
-        
         if (!users || users.length === 0) {
             throw new Error('Неверный email или пароль');
         }
         
         const user = users[0];
-        console.log('Успешный вход:', user);
         
         // Удаляем пароль из данных пользователя перед сохранением
         const { password: _, ...userWithoutPassword } = user;
@@ -143,7 +116,6 @@ function showError(message) {
         errorEl.textContent = message;
         errorEl.style.display = 'block';
         
-        // Автоматически скрываем через 5 секунд
         setTimeout(() => {
             errorEl.style.display = 'none';
         }, 5000);
@@ -172,8 +144,10 @@ function fillDemoData(role) {
     }
 }
 
-// Глобальная функция выхода
+// Глобальная функция выхода - ИСПРАВЛЕНА
 window.logout = function() {
-    localStorage.removeItem('user');
-    window.location.href = 'index.html';
+    if (confirm('Вы уверены, что хотите выйти?')) {
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
+    }
 };

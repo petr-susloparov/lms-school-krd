@@ -5,51 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LMS Школа - Вход</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .test-users {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f0f8ff;
-            border-radius: 8px;
-            border-left: 4px solid #2563eb;
-        }
-        .test-users h4 {
-            margin-top: 0;
-            color: #2563eb;
-            font-size: 14px;
-        }
-        .user-list {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .user-card {
-            background: white;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 12px;
-        }
-        .user-card strong {
-            color: #2c3e50;
-        }
-        .user-card .role {
-            font-size: 11px;
-            color: #666;
-            margin-top: 3px;
-        }
-        .user-card .password {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-    </style>
 </head>
 <body>
     <div class="auth-page">
         <div class="auth-container">
             <div class="auth-header">
                 <div class="logo">
-                    <div class="logo-icon">🏫</div>
+                    <img src="assets/logo.png" alt="LMS Школа" class="logo-img">
                     <div class="logo-text">
                         <h1>LMS Школа</h1>
                         <p>Образовательная платформа</p>
@@ -61,11 +23,11 @@
                 <h2>Вход в систему</h2>
                 
                 <div class="role-tabs">
-                    <button class="role-tab active" data-role="student">
+                    <button class="role-tab active" data-role="student" type="button">
                         <span class="tab-icon">👨‍🎓</span>
                         <span>Ученик</span>
                     </button>
-                    <button class="role-tab" data-role="teacher">
+                    <button class="role-tab" data-role="teacher" type="button">
                         <span class="tab-icon">👩‍🏫</span>
                         <span>Учитель</span>
                     </button>
@@ -84,7 +46,7 @@
                                placeholder="Введите пароль" required>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary btn-block">
+                    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
                         <span class="btn-text">Войти</span>
                         <span class="btn-loading" style="display: none;">
                             <span class="spinner"></span>
@@ -111,11 +73,6 @@
                             <strong>student2@school.ru</strong>
                             <div class="role">👩‍🎓 Ученик 11А</div>
                             <div class="password">Пароль: 222222</div>
-                        </div>
-                        <div class="user-card">
-                            <strong>student3@school.ru</strong>
-                            <div class="role">👨‍🎓 Ученик 11Б</div>
-                            <div class="password">Пароль: 333333</div>
                         </div>
                     </div>
                 </div>

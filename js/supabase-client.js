@@ -8,7 +8,7 @@ try {
     console.log('✅ Supabase подключен');
 } catch (error) {
     console.error('❌ Ошибка Supabase:', error);
-    alert('Ошибка подключения к базе данных');
+    showAlert('Ошибка подключения к базе данных');
 }
 
 // Функция для показа уведомлений
@@ -62,4 +62,9 @@ if (!document.querySelector('#alert-styles')) {
         }
     `;
     document.head.appendChild(style);
+}
+
+// Утилиты
+function showAlert(message, type = 'error') {
+    alert(message);
 }

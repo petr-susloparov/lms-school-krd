@@ -1,7 +1,6 @@
-// TEACHER DASHBOARD LOGIC - УЧИТЕЛЬ
+// TEACHER DASHBOARD LOGIC
 let currentTeacher = null;
 let selectedStudents = new Set();
-let allStudents = [];
 
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('👩‍🏫 Панель учителя загружена');
@@ -14,13 +13,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     setupTabs();
     await loadInitialData();
     setupForms();
-    
-    // Обновляем статистику каждые 30 секунд
-    setInterval(() => {
-        if (currentTeacher) {
-            loadStatistics();
-        }
-    }, 30000);
 });
 
 async function checkAuth() {
@@ -65,9 +57,7 @@ function setupLogoutButton() {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function() {
-            if (confirm('Вы уверены, что хотите выйти?')) {
-                window.logout();
-            }
+            window.logout();
         });
     }
 }
@@ -90,8 +80,6 @@ function setupTabs() {
             // Загружаем данные для вкладки если нужно
             if (tabId === 'my-homeworks') {
                 loadHomeworks();
-            } else if (tabId === 'students') {
-                loadAllStudents();
             }
         });
     });
@@ -118,7 +106,10 @@ async function loadStatistics() {
             .select('id')
             .eq('role', 'student');
         
-        if (studentsError) throw studentsError;
+        if (studentsError) {
+            console.error('Ошибка загрузки учеников:', studentsError);
+            throw studentsError;
+        }
         
         // Загружаем задания учителя
         const { data: homeworks, error: hwError } = await window.supabase
@@ -127,7 +118,10 @@ async function loadStatistics() {
             .eq('teacher_id', currentTeacher.id)
             .eq('is_active', true);
         
-        if (hwError) throw hwError;
+        if (hwError) {
+            console.error('Ошибка загрузки заданий:', hwError);
+            throw hwError;
+        }
         
         // Считаем статистику
         let totalAssignments = 0;
@@ -156,6 +150,11 @@ async function loadStatistics() {
         
     } catch (error) {
         console.error('Ошибка загрузки статистики:', error);
+        // Показываем нули если ошибка
+        document.getElementById('totalStudents').textContent = '0';
+        document.getElementById('totalHomeworks').textContent = '0';
+        document.getElementById('pendingAssignments').textContent = '0';
+        document.getElementById('completedAssignments').textContent = '0';
     }
 }
 
@@ -170,11 +169,13 @@ async function loadStudents() {
             .order('class_name')
             .order('full_name');
         
-        if (error) throw error;
+        if (error) {
+            console.error('Ошибка загрузки учеников:', error);
+            throw error;
+        }
         
         console.log('👨‍🎓 Загружено учеников:', students?.length || 0);
         
-        allStudents = students || [];
         container.innerHTML = '';
         
         if (!students || students.length === 0) {
@@ -265,105 +266,6 @@ async function loadStudents() {
     }
 }
 
-async function loadAllStudents() {
-    const container = document.getElementById('studentsList');
-    
-    try {
-        const { data: students, error } = await window.supabase
-            .from('users')
-            .select('id, email, full_name, class_name, created_at')
-            .eq('role', 'student')
-            .order('class_name')
-            .order('full_name');
-        
-        if (error) throw error;
-        
-        container.innerHTML = '';
-        
-        if (!students || students.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">👨‍🎓</div>
-                    <p>Нет учеников в системе</p>
-                </div>
-            `;
-            return;
-        }
-        
-        // Группируем по классам
-        const studentsByClass = {};
-        students.forEach(student => {
-            const className = student.class_name || 'Без класса';
-            if (!studentsByClass[className]) {
-                studentsByClass[className] = [];
-            }
-            studentsByClass[className].push(student);
-        });
-        
-        const studentsContainer = document.createElement('div');
-        studentsContainer.className = 'students-container';
-        
-        Object.entries(studentsByClass).forEach(([className, classStudents]) => {
-            const classCard = document.createElement('div');
-            classCard.className = 'class-card';
-            classCard.innerHTML = `
-                <div class="class-card-header">
-                    <h3>${className}</h3>
-                    <span class="class-count">${classStudents.length} учеников</span>
-                </div>
-                <div class="students-table">
-                    <div class="table-header">
-                        <div class="col-name">Имя</div>
-                        <div class="col-email">Email</div>
-                        <div class="col-actions">Действия</div>
-                    </div>
-                    ${classStudents.map(student => {
-                        const regDate = new Date(student.created_at).toLocaleDateString('ru-RU');
-                        return `
-                            <div class="table-row">
-                                <div class="col-name">
-                                    <strong>${student.full_name || 'Не указано'}</strong>
-                                </div>
-                                <div class="col-email">
-                                    ${student.email}
-                                    <div class="student-info">
-                                        <small>Зарегистрирован: ${regDate}</small>
-                                    </div>
-                                </div>
-                                <div class="col-actions">
-                                    <button class="btn btn-sm" onclick="viewStudentResults(${student.id})">
-                                        📊 Оценки
-                                    </button>
-                                    <button class="btn btn-sm" onclick="viewStudentAssignments(${student.id})">
-                                        📋 Задания
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-            
-            studentsContainer.appendChild(classCard);
-        });
-        
-        container.appendChild(studentsContainer);
-        
-    } catch (error) {
-        console.error('Ошибка загрузки списка учеников:', error);
-        container.innerHTML = `
-            <div class="error-state">
-                <div class="error-icon">⚠️</div>
-                <p>Ошибка загрузки списка учеников</p>
-                <button class="btn-retry" onclick="loadAllStudents()">
-                    <span class="btn-icon">🔄</span>
-                    Попробовать снова
-                </button>
-            </div>
-        `;
-    }
-}
-
 async function loadStudentsForResult() {
     const select = document.getElementById('resultStudent');
     
@@ -382,7 +284,7 @@ async function loadStudentsForResult() {
             const option = document.createElement('option');
             option.value = student.id;
             const displayName = student.full_name ? 
-                `${student.full_name} (${student.class_name || 'Без класса'}) - ${student.email}` : 
+                `${student.full_name} (${student.class_name || 'Без класса'})` : 
                 student.email;
             option.textContent = displayName;
             select.appendChild(option);
@@ -398,6 +300,9 @@ async function loadHomeworks() {
     const container = document.getElementById('homeworksList');
     
     try {
+        // Убираем индикатор загрузки
+        container.classList.remove('loading');
+        
         const { data: homeworks, error } = await window.supabase
             .from('homeworks')
             .select(`
@@ -468,16 +373,6 @@ function createHomeworkCard(homework) {
     const totalCount = homework.assignments?.length || 0;
     const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
     
-    // Группируем назначения по классам
-    const assignmentsByClass = {};
-    homework.assignments?.forEach(assignment => {
-        const className = assignment.users?.class_name || 'Без класса';
-        if (!assignmentsByClass[className]) {
-            assignmentsByClass[className] = [];
-        }
-        assignmentsByClass[className].push(assignment);
-    });
-    
     card.innerHTML = `
         <div class="homework-card-header">
             <div class="homework-title">
@@ -522,36 +417,6 @@ function createHomeworkCard(homework) {
             </div>
         </div>
         
-        ${homework.assignments && homework.assignments.length > 0 ? `
-            <div class="assignments-details">
-                <div class="details-header">Назначения по классам:</div>
-                ${Object.entries(assignmentsByClass).map(([className, classAssignments]) => {
-                    const classCompleted = classAssignments.filter(a => a.is_completed).length;
-                    const classTotal = classAssignments.length;
-                    const classRate = classTotal > 0 ? Math.round((classCompleted / classTotal) * 100) : 0;
-                    
-                    return `
-                        <div class="class-assignments">
-                            <div class="class-header">
-                                <span class="class-name">${className}</span>
-                                <span class="class-stats">${classCompleted}/${classTotal} (${classRate}%)</span>
-                            </div>
-                            <div class="students-list">
-                                ${classAssignments.map(assignment => `
-                                    <div class="student-assignment ${assignment.is_completed ? 'completed' : 'pending'}">
-                                        <span class="student-name">${assignment.users?.full_name || assignment.users?.email}</span>
-                                        <span class="assignment-status">
-                                            ${assignment.is_completed ? '✅ Выполнено' : '⏳ Ожидает'}
-                                        </span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        ` : ''}
-        
         <div class="homework-actions">
             <button class="btn btn-danger" onclick="deleteHomework(${homework.id})">
                 <span class="btn-icon">🗑️</span>
@@ -567,18 +432,6 @@ function setupForms() {
     // Форма создания задания
     const homeworkForm = document.getElementById('createHomeworkForm');
     if (homeworkForm) {
-        // Превью ссылки
-        const urlInput = document.getElementById('homeworkUrl');
-        const urlPreview = document.getElementById('urlPreview');
-        
-        urlInput.addEventListener('input', function() {
-            if (this.value) {
-                urlPreview.innerHTML = `<a href="${this.value}" target="_blank">${this.value}</a>`;
-            } else {
-                urlPreview.textContent = 'Введите ссылку';
-            }
-        });
-        
         homeworkForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             await createHomework();
@@ -626,29 +479,6 @@ window.deselectAllStudents = function() {
     showNotification('Выбор снят со всех учеников', 'info');
 };
 
-window.selectByClass = function() {
-    const className = prompt('Введите название класса (например: 11А):');
-    if (!className) return;
-    
-    // Снимаем весь текущий выбор
-    deselectAllStudents();
-    
-    // Выбираем учеников указанного класса
-    const checkboxes = document.querySelectorAll('#studentsContainer input[type="checkbox"]');
-    checkboxes.forEach(checkbox => {
-        const studentId = checkbox.value;
-        const student = allStudents.find(s => s.id == studentId);
-        
-        if (student && student.class_name === className) {
-            checkbox.checked = true;
-            selectedStudents.add(studentId);
-        }
-    });
-    
-    updateSelectedCount();
-    showNotification(`Выбраны ученики класса ${className} (${selectedStudents.size})`, 'success');
-};
-
 function updateSelectedCount() {
     const countEl = document.getElementById('selectedCount');
     if (countEl) {
@@ -680,11 +510,6 @@ async function createHomework() {
         return;
     }
     
-    if (!isValidUrl(taskUrl)) {
-        showFormMessage('Введите корректную ссылку (начинается с http:// или https://)', 'error', messageEl);
-        return;
-    }
-    
     const homeworkData = {
         title: title,
         subject: subject,
@@ -700,9 +525,6 @@ async function createHomework() {
         btnLoading.style.display = 'inline-block';
         submitBtn.disabled = true;
         
-        console.log('📝 Создание задания:', homeworkData);
-        console.log('👨‍🎓 Выбрано учеников:', selectedStudents.size);
-        
         // Создаем домашнее задание
         const { data: homework, error: hwError } = await window.supabase
             .from('homeworks')
@@ -715,15 +537,11 @@ async function createHomework() {
             throw hwError;
         }
         
-        console.log('✅ Задание создано, ID:', homework.id);
-        
         // Создаем назначения для выбранных учеников
         const assignmentsData = Array.from(selectedStudents).map(studentId => ({
             homework_id: homework.id,
             student_id: studentId
         }));
-        
-        console.log('📋 Создание назначений:', assignmentsData.length);
         
         const { error: assignError } = await window.supabase
             .from('assignments')
@@ -733,8 +551,6 @@ async function createHomework() {
             console.error('Ошибка создания назначений:', assignError);
             throw assignError;
         }
-        
-        console.log('✅ Назначения созданы');
         
         // Показываем успешное сообщение
         showFormMessage(`✅ Задание успешно создано и назначено ${selectedStudents.size} ученикам!`, 'success', messageEl);
@@ -748,9 +564,6 @@ async function createHomework() {
         document.querySelectorAll('#studentsContainer input[type="checkbox"]').forEach(cb => {
             cb.checked = false;
         });
-        
-        // Сбрасываем превью ссылки
-        document.getElementById('urlPreview').textContent = 'Введите ссылку';
         
         // Обновляем статистику и переключаем на вкладку с заданиями
         await loadStatistics();
@@ -818,15 +631,11 @@ async function addTestResult() {
         btnLoading.style.display = 'inline-block';
         submitBtn.disabled = true;
         
-        console.log('📊 Добавление оценки:', resultData);
-        
         const { error } = await window.supabase
             .from('test_results')
             .insert([resultData]);
         
         if (error) throw error;
-        
-        console.log('✅ Оценка сохранена');
         
         // Показываем успешное сообщение
         showFormMessage('✅ Оценка успешно сохранена!', 'success', messageEl);
@@ -849,15 +658,6 @@ async function addTestResult() {
 }
 
 // Вспомогательные функции
-function isValidUrl(string) {
-    try {
-        new URL(string);
-        return true;
-    } catch (_) {
-        return false;
-    }
-}
-
 function showFormMessage(message, type, element) {
     if (!element) return;
     
@@ -905,19 +705,4 @@ window.deleteHomework = async function(homeworkId) {
 window.refreshHomeworks = async function() {
     await loadHomeworks();
     showNotification('🔄 Список заданий обновлен', 'success');
-};
-
-window.refreshStudents = async function() {
-    await loadAllStudents();
-    showNotification('🔄 Список учеников обновлен', 'success');
-};
-
-window.viewStudentResults = async function(studentId) {
-    // В будущем можно реализовать просмотр оценок конкретного ученика
-    alert('Просмотр оценок ученика - функция в разработке');
-};
-
-window.viewStudentAssignments = async function(studentId) {
-    // В будущем можно реализовать просмотр заданий конкретного ученика
-    alert('Просмотр заданий ученика - функция в разработке');
 };

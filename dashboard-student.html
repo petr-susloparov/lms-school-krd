@@ -5,67 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LMS - Кабинет ученика</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .welcome-banner {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .welcome-text h2 {
-            margin: 0 0 8px 0;
-            font-size: 24px;
-        }
-        .welcome-text p {
-            margin: 0;
-            opacity: 0.9;
-        }
-        .stats-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-        }
-        .quick-actions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        .quick-action-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid #e0e6ed;
-        }
-        .quick-action-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-color: #2563eb;
-        }
-        .quick-action-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-            display: block;
-        }
-    </style>
 </head>
 <body>
     <header class="header">
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <div class="logo-icon">📚</div>
+                    <img src="assets/logo.png" alt="LMS Школа" class="logo-img">
                     <div class="logo-text">
-                        <h1>Личный кабинет ученика</h1>
-                        <p>Образовательная платформа</p>
+                        <h1>LMS Школа</h1>
+                        <p>Личный кабинет ученика</p>
                     </div>
                 </div>
                 <div class="user-menu">
@@ -134,20 +83,20 @@
                                 <strong>Обновить</strong>
                                 <p>Обновить данные</p>
                             </div>
-                            <div class="quick-action-card" onclick="markAllCompleted()">
-                                <span class="quick-action-icon">✅</span>
-                                <strong>Выполнить все</strong>
-                                <p>Отметить все задания</p>
-                            </div>
-                            <div class="quick-action-card" onclick="showCompleted()">
+                            <div class="quick-action-card" onclick="showAllAssignments()">
                                 <span class="quick-action-icon">📖</span>
-                                <strong>Выполненные</strong>
-                                <p>Показать выполненные</p>
-                            </div>
-                            <div class="quick-action-card" onclick="openAllAssignments()">
-                                <span class="quick-action-icon">🔗</span>
                                 <strong>Все задания</strong>
-                                <p>Открыть все ссылки</p>
+                                <p>Показать все</p>
+                            </div>
+                            <div class="quick-action-card" onclick="openCompleted()">
+                                <span class="quick-action-icon">✅</span>
+                                <strong>Выполненные</strong>
+                                <p>Только выполненные</p>
+                            </div>
+                            <div class="quick-action-card" onclick="openPending()">
+                                <span class="quick-action-icon">⏳</span>
+                                <strong>В работе</strong>
+                                <p>Только активные</p>
                             </div>
                         </div>
                     </div>

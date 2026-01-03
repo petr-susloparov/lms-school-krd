@@ -10,14 +10,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     updateUserInfo(currentStudent);
     setupLogoutButton();
     await loadStudentData(currentStudent);
-    
-    // Обновляем данные каждые 30 секунд
-    setInterval(() => {
-        if (currentStudent) {
-            loadAssignments(currentStudent);
-            loadResults(currentStudent);
-        }
-    }, 30000);
 });
 
 async function checkAuth() {
@@ -68,9 +60,7 @@ function setupLogoutButton() {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function() {
-            if (confirm('Вы уверены, что хотите выйти?')) {
-                window.logout();
-            }
+            window.logout();
         });
     }
 }
@@ -93,6 +83,9 @@ async function loadAssignments(user) {
     const activeCountEl = document.getElementById('activeAssignments');
     
     try {
+        // Убираем индикатор загрузки
+        container.classList.remove('loading');
+        
         // Получаем назначенные задания
         const { data: assignments, error } = await window.supabase
             .from('assignments')
@@ -148,15 +141,12 @@ async function loadAssignments(user) {
         if (countEl) countEl.textContent = totalAssignments;
         if (activeCountEl) activeCountEl.textContent = pendingAssignments;
         
-        // Группируем задания по статусу
-        const pendingAssignmentsList = assignments.filter(a => !a.is_completed);
-        const completedAssignmentsList = assignments.filter(a => a.is_completed);
-        
         // Создаем контейнер для заданий
         const assignmentsContainer = document.createElement('div');
         assignmentsContainer.className = 'assignments-container';
         
         // Невыполненные задания
+        const pendingAssignmentsList = assignments.filter(a => !a.is_completed);
         if (pendingAssignmentsList.length > 0) {
             const pendingHeader = document.createElement('div');
             pendingHeader.className = 'section-header';
@@ -169,6 +159,7 @@ async function loadAssignments(user) {
         }
         
         // Выполненные задания
+        const completedAssignmentsList = assignments.filter(a => a.is_completed);
         if (completedAssignmentsList.length > 0) {
             const completedHeader = document.createElement('div');
             completedHeader.className = 'section-header';
@@ -203,6 +194,7 @@ function createAssignmentCard(assignment, isCompleted) {
     
     const card = document.createElement('div');
     card.className = `assignment-card ${isCompleted ? 'completed' : 'pending'}`;
+    card.dataset.completed = isCompleted;
     
     const teacherName = hw.users?.full_name || 'Учитель';
     const createdDate = new Date(hw.created_at).toLocaleDateString('ru-RU');
@@ -271,11 +263,15 @@ async function loadResults(user) {
     const countEl = document.getElementById('resultsCount');
     
     try {
+        // Убираем индикатор загрузки
+        container.classList.remove('loading');
+        
         const { data: results, error } = await window.supabase
             .from('test_results')
             .select('*')
             .eq('student_id', user.id)
-            .order('created_at', { ascending: false });
+            .order('created_at', { ascending: false })
+            .limit(10);
         
         if (error) throw error;
         
@@ -344,20 +340,20 @@ function createSubjectCard(subject, results) {
     const avgPercentage = Math.round((avgScore / 100) * 100);
     
     // Определяем цвет по среднему баллу
-    let avgColor = '#2563eb'; // синий
+    let avgColor = '#2563eb';
     let avgLabel = 'Хорошо';
     
     if (avgPercentage >= 90) {
-        avgColor = '#27ae60'; // зеленый
+        avgColor = '#27ae60';
         avgLabel = 'Отлично';
     } else if (avgPercentage >= 75) {
-        avgColor = '#2ecc71'; // светло-зеленый
+        avgColor = '#2ecc71';
         avgLabel = 'Хорошо';
     } else if (avgPercentage >= 60) {
-        avgColor = '#f39c12'; // оранжевый
+        avgColor = '#f39c12';
         avgLabel = 'Удовлетворительно';
     } else {
-        avgColor = '#e74c3c'; // красный
+        avgColor = '#e74c3c';
         avgLabel = 'Неудовлетворительно';
     }
     
@@ -478,77 +474,50 @@ window.refreshData = async function() {
     }
 };
 
-window.markAllCompleted = async function() {
-    if (!confirm('Отметить все задания как выполненные?')) return;
-    
-    try {
-        // Получаем все активные задания пользователя
-        const { data: assignments, error } = await window.supabase
-            .from('assignments')
-            .select('id')
-            .eq('student_id', currentStudent.id)
-            .eq('is_completed', false);
-        
-        if (error) throw error;
-        
-        if (!assignments || assignments.length === 0) {
-            showNotification('Нет заданий для отметки', 'info');
-            return;
-        }
-        
-        // Обновляем все задания
-        const updatePromises = assignments.map(assignment =>
-            window.supabase
-                .from('assignments')
-                .update({ 
-                    is_completed: true,
-                    completed_at: new Date().toISOString()
-                })
-                .eq('id', assignment.id)
-        );
-        
-        await Promise.all(updatePromises);
-        
-        showNotification(`✅ Все задания (${assignments.length}) отмечены как выполненные!`, 'success');
-        
-        // Обновляем данные
-        await loadAssignments(currentStudent);
-        
-    } catch (error) {
-        console.error('Ошибка массового обновления:', error);
-        showNotification('❌ Ошибка при обновлении заданий', 'error');
-    }
+window.showAllAssignments = function() {
+    const cards = document.querySelectorAll('.assignment-card');
+    cards.forEach(card => card.style.display = 'block');
+    showNotification('Показаны все задания', 'info');
 };
 
-window.showCompleted = function() {
-    const completedCards = document.querySelectorAll('.assignment-card.completed');
-    const pendingCards = document.querySelectorAll('.assignment-card.pending');
+window.openCompleted = function() {
+    const allCards = document.querySelectorAll('.assignment-card');
+    const completedCards = document.querySelectorAll('.assignment-card[data-completed="true"]');
     
-    pendingCards.forEach(card => card.style.display = 'none');
+    if (completedCards.length === 0) {
+        showNotification('Нет выполненных заданий', 'info');
+        return;
+    }
+    
+    allCards.forEach(card => card.style.display = 'none');
     completedCards.forEach(card => card.style.display = 'block');
     
     showNotification('Показаны только выполненные задания', 'info');
     
     // Через 5 секунд показываем все снова
     setTimeout(() => {
-        pendingCards.forEach(card => card.style.display = 'block');
+        allCards.forEach(card => card.style.display = 'block');
     }, 5000);
 };
 
-window.openAllAssignments = function() {
-    const links = document.querySelectorAll('.assignment-card.pending .btn-primary');
+window.openPending = function() {
+    const allCards = document.querySelectorAll('.assignment-card');
+    const pendingCards = document.querySelectorAll('.assignment-card[data-completed="false"]');
     
-    if (links.length === 0) {
-        showNotification('Нет активных заданий для открытия', 'info');
+    if (pendingCards.length === 0) {
+        showNotification('Нет активных заданий', 'info');
         return;
     }
     
-    // Открываем все ссылки в новых вкладках
-    links.forEach(link => {
-        window.open(link.href, '_blank');
-    });
+    allCards.forEach(card => card.style.display = 'none');
+    pendingCards.forEach(card => card.style.display = 'block');
     
-    showNotification(`Открыто ${links.length} заданий в новых вкладках`, 'success');
+    showNotification('Показаны только активные задания', 'info');
+    
+    // Через 5 секунд показываем все снова
+    setTimeout(() => {
+        allCards.forEach(card => card.style.display = 'block');
+    }, 5000);
 };
 
 function showNotification(message, type = 'info') {
