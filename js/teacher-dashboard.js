@@ -5,7 +5,9 @@ let selectedStudents = new Set();
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('👩‍🏫 Панель учителя загружена');
     
-    currentTeacher = await checkAuth();
+    // Проверяем авторизацию через сессию
+    await checkAuth();
+    
     if (!currentTeacher) return;
     
     updateUserInfo(currentTeacher);
@@ -16,14 +18,16 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 async function checkAuth() {
-    const userJson = localStorage.getItem('user');
-    if (!userJson) {
-        window.location.href = 'index.html';
-        return null;
-    }
-    
     try {
-        const user = JSON.parse(userJson);
+        // Получаем пользователя из глобальной переменной
+        const user = window.getCurrentUser ? window.getCurrentUser() : null;
+        
+        if (!user) {
+            // Если пользователь не в памяти, перенаправляем на страницу входа
+            window.location.href = 'index.html';
+            return null;
+        }
+        
         if (user.role !== 'teacher') {
             alert('Эта страница только для учителей');
             window.location.href = 'dashboard-student.html';
@@ -31,10 +35,11 @@ async function checkAuth() {
         }
         
         console.log('👤 Авторизованный учитель:', user);
+        currentTeacher = user;
         return user;
+        
     } catch (e) {
-        console.error('Ошибка парсинга данных:', e);
-        localStorage.removeItem('user');
+        console.error('Ошибка проверки авторизации:', e);
         window.location.href = 'index.html';
         return null;
     }
@@ -88,73 +93,12 @@ function setupTabs() {
 async function loadInitialData() {
     try {
         await Promise.all([
-            loadStatistics(),
             loadStudents(),
             loadStudentsForResult()
         ]);
     } catch (error) {
         console.error('Ошибка загрузки данных:', error);
         showNotification('Не удалось загрузить данные. Попробуйте обновить страницу.', 'error');
-    }
-}
-
-async function loadStatistics() {
-    try {
-        // Загружаем всех учеников
-        const { data: students, error: studentsError } = await window.supabase
-            .from('users')
-            .select('id')
-            .eq('role', 'student');
-        
-        if (studentsError) {
-            console.error('Ошибка загрузки учеников:', studentsError);
-            throw studentsError;
-        }
-        
-        // Загружаем задания учителя
-        const { data: homeworks, error: hwError } = await window.supabase
-            .from('homeworks')
-            .select('id, assignments(is_completed)')
-            .eq('teacher_id', currentTeacher.id)
-            .eq('is_active', true);
-        
-        if (hwError) {
-            console.error('Ошибка загрузки заданий:', hwError);
-            throw hwError;
-        }
-        
-        // Считаем статистику
-        let totalAssignments = 0;
-        let completedAssignments = 0;
-        
-        if (homeworks) {
-            homeworks.forEach(hw => {
-                if (hw.assignments) {
-                    hw.assignments.forEach(assignment => {
-                        totalAssignments++;
-                        if (assignment.is_completed) {
-                            completedAssignments++;
-                        }
-                    });
-                }
-            });
-        }
-        
-        const pendingAssignments = totalAssignments - completedAssignments;
-        
-        // Обновляем статистику на странице
-        document.getElementById('totalStudents').textContent = students?.length || 0;
-        document.getElementById('totalHomeworks').textContent = homeworks?.length || 0;
-        document.getElementById('pendingAssignments').textContent = pendingAssignments;
-        document.getElementById('completedAssignments').textContent = completedAssignments;
-        
-    } catch (error) {
-        console.error('Ошибка загрузки статистики:', error);
-        // Показываем нули если ошибка
-        document.getElementById('totalStudents').textContent = '0';
-        document.getElementById('totalHomeworks').textContent = '0';
-        document.getElementById('pendingAssignments').textContent = '0';
-        document.getElementById('completedAssignments').textContent = '0';
     }
 }
 
@@ -311,12 +255,7 @@ async function loadHomeworks() {
                 subject,
                 description,
                 task_url,
-                created_at,
-                assignments (
-                    id,
-                    is_completed,
-                    users!assignments_student_id_fkey(full_name, email, class_name)
-                )
+                created_at
             `)
             .eq('teacher_id', currentTeacher.id)
             .eq('is_active', true)
@@ -339,15 +278,11 @@ async function loadHomeworks() {
             return;
         }
         
-        const homeworksContainer = document.createElement('div');
-        homeworksContainer.className = 'homeworks-container';
-        
+        // Создаем задания стопкой
         homeworks.forEach(homework => {
             const homeworkCard = createHomeworkCard(homework);
-            homeworksContainer.appendChild(homeworkCard);
+            container.appendChild(homeworkCard);
         });
-        
-        container.appendChild(homeworksContainer);
         
     } catch (error) {
         console.error('Ошибка загрузки заданий:', error);
@@ -369,52 +304,28 @@ function createHomeworkCard(homework) {
     card.className = 'homework-card';
     
     const createdDate = new Date(homework.created_at).toLocaleDateString('ru-RU');
-    const completedCount = homework.assignments?.filter(a => a.is_completed).length || 0;
-    const totalCount = homework.assignments?.length || 0;
-    const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
     
     card.innerHTML = `
-        <div class="homework-card-header">
+        <div class="homework-header">
             <div class="homework-title">
                 <h3>${homework.title}</h3>
-                <div class="homework-subject">${homework.subject}</div>
+                <span class="homework-subject">${homework.subject}</span>
             </div>
             <div class="homework-date">${createdDate}</div>
         </div>
         
         ${homework.description ? `
             <div class="homework-description">
-                ${homework.description}
+                <strong>Описание:</strong>
+                <p>${homework.description}</p>
             </div>
         ` : ''}
         
         <div class="homework-url">
-            <a href="${homework.task_url}" target="_blank" rel="noopener noreferrer" class="url-link">
-                <span class="url-icon">🔗</span>
+            <a href="${homework.task_url}" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+                <span class="btn-icon">🔗</span>
                 Ссылка на задание
             </a>
-        </div>
-        
-        <div class="homework-stats">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-label">Назначено:</div>
-                    <div class="stat-value">${totalCount} учеников</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Выполнено:</div>
-                    <div class="stat-value">${completedCount}/${totalCount}</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Процент выполнения:</div>
-                    <div class="stat-value">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${completionRate}%"></div>
-                        </div>
-                        ${completionRate}%
-                    </div>
-                </div>
-            </div>
         </div>
         
         <div class="homework-actions">
@@ -565,9 +476,6 @@ async function createHomework() {
             cb.checked = false;
         });
         
-        // Обновляем статистику и переключаем на вкладку с заданиями
-        await loadStatistics();
-        
         // Переключаемся на вкладку с заданиями через 2 секунды
         setTimeout(() => {
             document.querySelector('[data-tab="my-homeworks"]').click();
@@ -612,7 +520,7 @@ async function addTestResult() {
     }
     
     if (score > maxScore) {
-        showFormMessage('Баллы не могут превышать максимальный балл', 'error', messageEl);
+        showFormMessage('Первичный балл не может превышать максимальный балл', 'error', messageEl);
         return;
     }
     
@@ -638,11 +546,10 @@ async function addTestResult() {
         if (error) throw error;
         
         // Показываем успешное сообщение
-        showFormMessage('✅ Оценка успешно сохранена!', 'success', messageEl);
+        showFormMessage(`✅ Оценка сохранена! ${score} из ${maxScore} баллов`, 'success', messageEl);
         
         // Очищаем форму
         form.reset();
-        document.getElementById('resultMaxScore').value = '100';
         document.getElementById('resultDate').value = new Date().toISOString().split('T')[0];
         
     } catch (error) {
@@ -693,7 +600,6 @@ window.deleteHomework = async function(homeworkId) {
         if (error) throw error;
         
         showNotification('✅ Задание удалено', 'success');
-        await loadStatistics();
         await loadHomeworks();
         
     } catch (error) {

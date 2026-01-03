@@ -3,21 +3,21 @@
    ======================== */
 
    :root {
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
+    --primary: #1e40af;
+    --primary-dark: #1e3a8a;
     --primary-light: #3b82f6;
     --secondary: #64748b;
     --success: #27ae60;
     --warning: #f39c12;
     --danger: #e74c3c;
-    --dark: #2c3e50;
+    --dark: #1f2937;
     --light: #f8f9fa;
-    --gray: #6c757d;
-    --border: #e0e6ed;
-    --shadow: 0 4px 12px rgba(0,0,0,0.1);
-    --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
-    --radius: 12px;
-    --radius-sm: 8px;
+    --gray: #6b7280;
+    --border: #e5e7eb;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-lg: 0 4px 6px rgba(0,0,0,0.1);
+    --radius: 8px;
+    --radius-sm: 6px;
 }
 
 * {
@@ -28,9 +28,10 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    line-height: 1.6;
+    line-height: 1.5;
     color: var(--dark);
-    background-color: #f5f7fa;
+    background-color: #ffffff;
+    min-height: 100vh;
 }
 
 .container {
@@ -40,16 +41,16 @@ body {
 }
 
 /* ========================
-   ШАПКА (ОБЩАЯ ДЛЯ ВСЕХ СТРАНИЦ)
+   ШАПКА (синяя #1e40af)
    ======================== */
 
 .header {
     background: var(--primary);
-    padding: 15px 0;
+    padding: 16px 0;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .header-content {
@@ -61,35 +62,32 @@ body {
 .logo {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
     text-decoration: none;
 }
 
 .logo-img {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     object-fit: contain;
-    border-radius: 8px;
-    background: white;
-    padding: 5px;
 }
 
 .logo-text h1 {
     color: white;
-    font-size: 20px;
+    font-size: 18px;
+    font-weight: 600;
     margin-bottom: 2px;
-    font-weight: 700;
 }
 
 .logo-text p {
     color: rgba(255,255,255,0.9);
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .user-menu {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
 }
 
 .user-info {
@@ -115,14 +113,14 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 10px 20px;
+    gap: 6px;
+    padding: 8px 16px;
     border: none;
     border-radius: var(--radius-sm);
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
     text-decoration: none;
     font-family: inherit;
 }
@@ -138,19 +136,16 @@ body {
 
 .btn-primary:hover {
     background: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .btn-outline {
     background: transparent;
     color: white;
-    border: 2px solid rgba(255,255,255,0.3);
+    border: 1px solid rgba(255,255,255,0.3);
 }
 
 .btn-outline:hover {
     background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.5);
 }
 
 .btn-success {
@@ -176,11 +171,6 @@ body {
     font-size: 12px;
 }
 
-.btn-lg {
-    padding: 12px 24px;
-    font-size: 16px;
-}
-
 .btn-icon {
     font-size: 14px;
 }
@@ -189,64 +179,38 @@ body {
    СТРАНИЦА АВТОРИЗАЦИИ
    ======================== */
 
-.auth-page {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.main-content {
+    padding: 40px 0;
 }
 
 .auth-container {
-    width: 100%;
-    max-width: 480px;
-}
-
-.auth-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.auth-header .logo {
-    justify-content: center;
-}
-
-.auth-header .logo-img {
-    width: 80px;
-    height: 80px;
-}
-
-.auth-header .logo-text h1 {
-    font-size: 32px;
-    margin-bottom: 5px;
-}
-
-.auth-header .logo-text p {
-    font-size: 16px;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
 .auth-card {
     background: white;
     border-radius: var(--radius);
-    padding: 40px;
+    padding: 32px;
     box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
 }
 
 .auth-card h2 {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
     color: var(--dark);
-    font-size: 24px;
+    font-size: 20px;
+    font-weight: 600;
 }
 
 .role-tabs {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 30px;
+    gap: 8px;
+    margin-bottom: 24px;
     background: var(--light);
-    padding: 5px;
+    padding: 4px;
     border-radius: var(--radius-sm);
 }
 
@@ -254,242 +218,394 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    padding: 15px;
+    gap: 6px;
+    padding: 12px;
     border: none;
     background: white;
     border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
     font-size: 14px;
     color: var(--dark);
 }
 
 .role-tab:hover {
     background: #f1f2f6;
-    transform: translateY(-2px);
 }
 
 .role-tab.active {
     background: var(--primary);
     color: white;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    box-shadow: var(--shadow);
 }
 
 .role-tab .tab-icon {
-    font-size: 24px;
+    font-size: 20px;
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
+    margin-bottom: 6px;
+    font-weight: 500;
     color: var(--dark);
     font-size: 14px;
 }
 
 .form-control {
     width: 100%;
-    padding: 12px 15px;
-    border: 2px solid var(--border);
+    padding: 10px 12px;
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    font-size: 16px;
-    transition: all 0.3s;
+    font-size: 14px;
+    transition: all 0.2s;
     font-family: inherit;
+    background: white;
 }
 
 .form-control:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+.form-hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--gray);
 }
 
 .error-message {
-    margin-top: 15px;
-    padding: 12px;
-    background: #ffeaea;
+    margin-top: 12px;
+    padding: 10px;
+    background: #fee;
     color: var(--danger);
     border-radius: var(--radius-sm);
-    font-size: 14px;
-    border: 1px solid #ffcccc;
+    font-size: 13px;
+    border: 1px solid #fcc;
 }
 
-.test-users {
-    margin-top: 25px;
-    padding: 15px;
+.auth-info {
+    margin-top: 20px;
+    padding: 12px;
     background: var(--light);
     border-radius: var(--radius-sm);
     font-size: 13px;
-}
-
-.test-users h4 {
-    margin-top: 0;
-    color: var(--dark);
-    margin-bottom: 10px;
-    font-size: 14px;
-}
-
-.user-list {
-    display: grid;
-    gap: 10px;
-}
-
-.user-card {
-    background: white;
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    border-left: 4px solid var(--primary);
-}
-
-.user-card strong {
-    color: var(--dark);
-    font-size: 13px;
-}
-
-.user-card .role {
-    font-size: 12px;
     color: var(--gray);
-    margin-top: 3px;
+    line-height: 1.4;
 }
 
-.user-card .password {
-    color: var(--danger);
-    font-weight: bold;
-    font-size: 12px;
-    margin-top: 3px;
+.auth-info p {
+    margin-bottom: 4px;
 }
 
 /* ========================
-   ОСНОВНОЙ КОНТЕНТ
+   СЕКЦИИ ДАШБОРДА
    ======================== */
-
-.main-content {
-    padding: 30px 0;
-}
 
 .welcome-banner {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     color: white;
-    padding: 25px;
+    padding: 24px;
     border-radius: var(--radius);
-    margin-bottom: 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    margin-bottom: 24px;
 }
 
 .welcome-text h2 {
     margin: 0 0 8px 0;
-    font-size: 24px;
+    font-size: 20px;
+    font-weight: 600;
 }
 
 .welcome-text p {
     margin: 0;
     opacity: 0.9;
-}
-
-.stats-badge {
-    background: rgba(255,255,255,0.2);
-    padding: 8px 16px;
-    border-radius: 20px;
     font-size: 14px;
-    font-weight: 500;
 }
 
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-}
-
-.dashboard-card {
+.dashboard-section {
     background: white;
     border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
     overflow: hidden;
-    box-shadow: var(--shadow);
 }
 
-.card-header {
-    padding: 20px;
+.section-header {
+    padding: 16px 20px;
+    background: var(--light);
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.card-header h2 {
-    font-size: 18px;
+.section-header h2 {
+    font-size: 16px;
     color: var(--dark);
     display: flex;
     align-items: center;
-    gap: 10px;
-}
-
-.card-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.card-count {
-    background: var(--primary);
-    color: white;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
+    gap: 8px;
     font-weight: 600;
 }
 
-.card-body {
+.section-icon {
+    font-size: 18px;
+}
+
+.section-content {
     padding: 20px;
-    min-height: 200px;
 }
 
 /* ========================
-   УЧИТЕЛЬСКАЯ СТАТИСТИКА
+   КАРТОЧКИ ЗАДАНИЙ (стопкой)
    ======================== */
 
-.teacher-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.stat-item {
+.assignment-card {
     background: white;
+    border-radius: var(--radius-sm);
     padding: 20px;
-    border-radius: var(--radius);
-    text-align: center;
-    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
 }
 
-.stat-value {
-    font-size: 32px;
-    font-weight: bold;
-    color: var(--primary);
-    margin-bottom: 5px;
+.assignment-card:last-child {
+    margin-bottom: 0;
 }
 
-.stat-label {
-    font-size: 14px;
+.assignment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.assignment-title h3 {
+    font-size: 16px;
+    color: var(--dark);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.assignment-subject {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.assignment-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     color: var(--gray);
 }
 
+.meta-icon {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.assignment-description {
+    margin: 12px 0;
+    padding: 12px;
+    background: var(--light);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.assignment-description strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--dark);
+}
+
+.assignment-actions {
+    margin-top: 16px;
+}
+
 /* ========================
-   ВКЛАДКИ
+   КАРТОЧКИ ОЦЕНОК (стопкой)
+   ======================== */
+
+.result-card {
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+}
+
+.result-card:last-child {
+    margin-bottom: 0;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.result-title h3 {
+    font-size: 16px;
+    color: var(--dark);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.result-subject {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.result-date {
+    font-size: 13px;
+    color: var(--gray);
+}
+
+.result-content {
+    padding: 12px;
+    background: var(--light);
+    border-radius: var(--radius-sm);
+}
+
+.result-score {
+    text-align: center;
+}
+
+.score-value {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.primary-score {
+    color: currentColor;
+}
+
+.score-separator {
+    color: var(--gray);
+    margin: 0 4px;
+    font-weight: 400;
+}
+
+.max-score {
+    color: var(--gray);
+    font-weight: 400;
+}
+
+.score-percentage {
+    font-size: 14px;
+    color: var(--gray);
+    margin-bottom: 4px;
+}
+
+.score-grade {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ========================
+   КАРТОЧКИ ЗАДАНИЙ (учитель)
+   ======================== */
+
+.homework-card {
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+}
+
+.homework-card:last-child {
+    margin-bottom: 0;
+}
+
+.homework-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.homework-title h3 {
+    font-size: 16px;
+    color: var(--dark);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.homework-subject {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.homework-date {
+    font-size: 13px;
+    color: var(--gray);
+}
+
+.homework-description {
+    margin: 12px 0;
+    padding: 12px;
+    background: var(--light);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.homework-description strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--dark);
+}
+
+.homework-url {
+    margin: 12px 0;
+}
+
+.homework-actions {
+    margin-top: 16px;
+    text-align: right;
+}
+
+/* ========================
+   ВКЛАДКИ (учитель)
    ======================== */
 
 .tabs {
     display: flex;
-    gap: 10px;
-    margin-bottom: 30px;
+    gap: 8px;
+    margin-bottom: 24px;
     background: var(--light);
-    padding: 5px;
+    padding: 4px;
     border-radius: var(--radius);
     flex-wrap: wrap;
 }
@@ -497,15 +613,15 @@ body {
 .tab-btn {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
+    gap: 6px;
+    padding: 10px 16px;
     background: white;
     border: none;
     border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 14px;
     color: var(--dark);
-    transition: all 0.3s;
+    transition: all 0.2s;
     flex: 1;
     min-width: 200px;
     justify-content: center;
@@ -513,108 +629,89 @@ body {
 
 .tab-btn:hover {
     background: #f1f2f6;
-    transform: translateY(-2px);
 }
 
 .tab-btn.active {
     background: var(--primary);
     color: white;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    box-shadow: var(--shadow);
 }
 
 .tab-icon {
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .tab-content {
     display: none;
-    animation: fadeIn 0.3s ease;
 }
 
 .tab-content.active {
     display: block;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
 /* ========================
-   ФОРМЫ
+   ВЫБОР УЧЕНИКОВ
    ======================== */
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.form-hint {
-    display: block;
-    margin-top: 5px;
-    font-size: 12px;
-    color: var(--gray);
-}
 
 .students-selector {
     background: var(--light);
     border-radius: var(--radius-sm);
     overflow: hidden;
+    border: 1px solid var(--border);
 }
 
 .selector-actions {
     display: flex;
-    gap: 10px;
-    padding: 15px;
+    gap: 8px;
+    padding: 12px;
     background: white;
     border-bottom: 1px solid var(--border);
 }
 
 .students-list {
-    max-height: 250px;
+    max-height: 200px;
     overflow-y: auto;
-    padding: 15px;
+    padding: 12px;
 }
 
 .class-group {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .class-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-    padding: 10px;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding: 8px;
     background: white;
     border-radius: var(--radius-sm);
     font-weight: 600;
     color: var(--dark);
+    font-size: 13px;
 }
 
 .class-selector {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
 }
 
 .students-group {
     display: grid;
-    gap: 8px;
-    margin-left: 20px;
+    gap: 6px;
+    margin-left: 16px;
 }
 
 .student-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px;
+    gap: 8px;
+    padding: 8px;
     background: white;
     border-radius: var(--radius-sm);
     border: 1px solid transparent;
-    transition: all 0.3s;
+    transition: all 0.2s;
 }
 
 .student-item:hover {
@@ -623,8 +720,8 @@ body {
 }
 
 .student-item input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
 }
 
@@ -658,10 +755,10 @@ body {
 }
 
 .selection-info {
-    padding: 12px 15px;
+    padding: 10px 12px;
     background: white;
     border-top: 1px solid var(--border);
-    font-size: 14px;
+    font-size: 13px;
     color: var(--dark);
 }
 
@@ -671,15 +768,26 @@ body {
 }
 
 .form-actions {
-    margin-top: 30px;
+    margin-top: 20px;
     text-align: center;
 }
 
+/* ========================
+   ФОРМЫ
+   ======================== */
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
 .message {
-    margin-top: 15px;
-    padding: 12px;
+    margin-top: 12px;
+    padding: 10px;
     border-radius: var(--radius-sm);
-    font-size: 14px;
+    font-size: 13px;
     display: none;
 }
 
@@ -698,371 +806,6 @@ body {
 }
 
 /* ========================
-   КАРТОЧКИ ЗАДАНИЙ (ученик)
-   ======================== */
-
-.assignments-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.section-header {
-    padding: 10px 0;
-    border-bottom: 2px solid var(--border);
-}
-
-.section-header h3 {
-    font-size: 16px;
-    color: var(--dark);
-    font-weight: 600;
-}
-
-.assignment-card {
-    background: white;
-    border-radius: var(--radius-sm);
-    padding: 20px;
-    border: 1px solid var(--border);
-    transition: all 0.3s;
-}
-
-.assignment-card:hover {
-    box-shadow: var(--shadow);
-    transform: translateY(-2px);
-}
-
-.assignment-card.pending {
-    border-left: 4px solid var(--warning);
-}
-
-.assignment-card.completed {
-    border-left: 4px solid var(--success);
-    background: #f0fff4;
-}
-
-.assignment-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 15px;
-}
-
-.assignment-title h4 {
-    font-size: 16px;
-    color: var(--dark);
-    margin-bottom: 5px;
-}
-
-.assignment-subject {
-    display: inline-block;
-    background: var(--primary);
-    color: white;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 500;
-}
-
-.assignment-status {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 20px;
-}
-
-.assignment-status.pending {
-    background: #ffeaa7;
-    color: #d35400;
-}
-
-.assignment-status.completed {
-    background: #d1f7c4;
-    color: var(--success);
-}
-
-.assignment-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 15px;
-    font-size: 13px;
-}
-
-.meta-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: var(--gray);
-}
-
-.meta-icon {
-    font-size: 14px;
-}
-
-.assignment-description {
-    margin: 15px 0;
-    padding: 15px;
-    background: var(--light);
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.assignment-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.assignment-actions .btn {
-    flex: 1;
-    justify-content: center;
-}
-
-/* ========================
-   КАРТОЧКИ ОЦЕНОК (ученик)
-   ======================== */
-
-.results-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.subject-card {
-    background: white;
-    border-radius: var(--radius-sm);
-    padding: 20px;
-    border: 1px solid var(--border);
-}
-
-.subject-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border);
-}
-
-.subject-header h3 {
-    font-size: 16px;
-    color: var(--dark);
-    font-weight: 600;
-}
-
-.subject-average {
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.average-label {
-    font-size: 12px;
-    color: var(--gray);
-    font-weight: normal;
-}
-
-.results-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.result-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    background: var(--light);
-    border-radius: var(--radius-sm);
-}
-
-.result-info {
-    flex: 1;
-}
-
-.result-name {
-    font-weight: 500;
-    color: var(--dark);
-    font-size: 14px;
-    margin-bottom: 3px;
-}
-
-.result-date {
-    font-size: 11px;
-    color: var(--gray);
-}
-
-.result-score {
-    text-align: right;
-    font-size: 14px;
-}
-
-.result-percentage {
-    font-size: 11px;
-    color: var(--gray);
-    margin-left: 5px;
-}
-
-.result-label {
-    display: block;
-    font-size: 11px;
-    margin-top: 3px;
-    font-weight: 600;
-}
-
-/* ========================
-   КАРТОЧКИ ЗАДАНИЙ (учитель)
-   ======================== */
-
-.homeworks-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.homework-card {
-    background: white;
-    border-radius: var(--radius-sm);
-    padding: 25px;
-    border: 1px solid var(--border);
-}
-
-.homework-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-}
-
-.homework-title h3 {
-    font-size: 18px;
-    color: var(--dark);
-    margin-bottom: 8px;
-}
-
-.homework-subject {
-    display: inline-block;
-    background: var(--primary);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.homework-date {
-    font-size: 14px;
-    color: var(--gray);
-}
-
-.homework-description {
-    margin: 15px 0;
-    padding: 15px;
-    background: var(--light);
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.homework-url {
-    margin: 15px 0;
-}
-
-.url-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--primary);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.url-link:hover {
-    text-decoration: underline;
-}
-
-.url-icon {
-    font-size: 16px;
-}
-
-.homework-stats {
-    margin: 20px 0;
-    padding: 20px;
-    background: var(--light);
-    border-radius: var(--radius-sm);
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 6px;
-    background: #e0e0e0;
-    border-radius: 3px;
-    overflow: hidden;
-    margin-top: 5px;
-}
-
-.progress-fill {
-    height: 100%;
-    background: var(--success);
-    transition: width 0.3s;
-}
-
-.homework-actions {
-    margin-top: 20px;
-    text-align: right;
-}
-
-/* ========================
-   БЫСТРЫЕ ДЕЙСТВИЯ
-   ======================== */
-
-.quick-actions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-}
-
-.quick-action-card {
-    background: white;
-    padding: 20px;
-    border-radius: var(--radius-sm);
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    border: 1px solid var(--border);
-}
-
-.quick-action-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow);
-    border-color: var(--primary);
-}
-
-.quick-action-icon {
-    font-size: 32px;
-    margin-bottom: 10px;
-    display: block;
-}
-
-.quick-action-card strong {
-    display: block;
-    color: var(--dark);
-    margin-bottom: 5px;
-}
-
-.quick-action-card p {
-    font-size: 12px;
-    color: var(--gray);
-}
-
-/* ========================
    СОСТОЯНИЯ И УВЕДОМЛЕНИЯ
    ======================== */
 
@@ -1076,13 +819,13 @@ body {
 .loading::after {
     content: '';
     display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid var(--primary);
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-left: 10px;
+    margin-left: 8px;
 }
 
 @keyframes spin {
@@ -1092,8 +835,8 @@ body {
 
 .spinner {
     display: inline-block;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border: 2px solid rgba(255,255,255,0.3);
     border-top: 2px solid white;
     border-radius: 50%;
@@ -1106,14 +849,14 @@ body {
 }
 
 .empty-icon, .error-icon {
-    font-size: 48px;
-    margin-bottom: 15px;
+    font-size: 40px;
+    margin-bottom: 12px;
     opacity: 0.3;
 }
 
 .empty-state p, .error-state p {
     color: var(--gray);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .empty-state small {
@@ -1123,15 +866,15 @@ body {
 }
 
 .btn-retry {
-    margin-top: 15px;
-    padding: 8px 20px;
+    margin-top: 12px;
+    padding: 8px 16px;
     background: var(--primary);
     color: white;
     border: none;
     border-radius: var(--radius-sm);
     cursor: pointer;
-    font-size: 14px;
-    transition: all 0.3s;
+    font-size: 13px;
+    transition: all 0.2s;
 }
 
 .btn-retry:hover {
@@ -1142,6 +885,7 @@ body {
     color: var(--danger);
     text-align: center;
     padding: 20px;
+    font-size: 13px;
 }
 
 /* ========================
@@ -1150,19 +894,11 @@ body {
 
 @media (max-width: 768px) {
     .container {
-        padding: 0 15px;
+        padding: 0 16px;
     }
     
     .auth-card {
-        padding: 30px 20px;
-    }
-    
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .teacher-stats {
-        grid-template-columns: repeat(2, 1fr);
+        padding: 24px;
     }
     
     .tab-btn {
@@ -1171,18 +907,20 @@ body {
     
     .form-row {
         grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 12px;
     }
     
     .assignment-header,
-    .homework-card-header,
-    .subject-header {
+    .result-header,
+    .homework-header,
+    .section-header {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
         align-items: flex-start;
     }
     
     .assignment-subject,
+    .result-subject,
     .homework-subject {
         align-self: flex-start;
         margin-left: 0;
@@ -1190,34 +928,22 @@ body {
     
     .assignment-meta {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
     }
     
-    .assignment-actions {
+    .selector-actions {
         flex-direction: column;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .quick-actions-grid {
-        grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 480px) {
     .container {
-        padding: 0 10px;
-    }
-    
-    .teacher-stats {
-        grid-template-columns: 1fr;
+        padding: 0 12px;
     }
     
     .user-menu {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
         align-items: flex-end;
     }
     
@@ -1225,17 +951,7 @@ body {
         text-align: right;
     }
     
-    .selector-actions {
-        flex-direction: column;
-    }
-    
-    .quick-actions-grid {
-        grid-template-columns: 1fr;
-    }
-    
     .welcome-banner {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
+        padding: 20px;
     }
 }

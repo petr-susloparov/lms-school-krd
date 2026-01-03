@@ -39,67 +39,25 @@
                     <h2 id="welcomeTitle">Добро пожаловать!</h2>
                     <p>Здесь вы можете просматривать задания и свои оценки</p>
                 </div>
-                <div class="stats-badge">
-                    <span id="activeAssignments">0</span> активных заданий
+            </div>
+
+            <!-- Задания ученика -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2><span class="section-icon">📋</span> Мои задания</h2>
+                </div>
+                <div id="assignmentsList" class="section-content">
+                    <div class="loading">Загрузка заданий...</div>
                 </div>
             </div>
 
-            <div class="dashboard-grid">
-                <!-- Мои задания -->
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h2><span class="card-icon">📋</span> Мои задания</h2>
-                        <div class="card-actions">
-                            <span id="assignmentsCount" class="card-count">0</span>
-                        </div>
-                    </div>
-                    <div id="assignmentsList" class="card-body">
-                        <div class="loading">Загрузка заданий...</div>
-                    </div>
+            <!-- Оценки ученика -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2><span class="section-icon">📊</span> Мои оценки</h2>
                 </div>
-
-                <!-- Мои оценки -->
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h2><span class="card-icon">📊</span> Мои оценки</h2>
-                        <div class="card-actions">
-                            <span id="resultsCount" class="card-count">0</span>
-                        </div>
-                    </div>
-                    <div id="resultsList" class="card-body">
-                        <div class="loading">Загрузка оценок...</div>
-                    </div>
-                </div>
-
-                <!-- Быстрые действия -->
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h2><span class="card-icon">⚡</span> Быстрые действия</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="quick-actions-grid">
-                            <div class="quick-action-card" onclick="refreshData()">
-                                <span class="quick-action-icon">🔄</span>
-                                <strong>Обновить</strong>
-                                <p>Обновить данные</p>
-                            </div>
-                            <div class="quick-action-card" onclick="showAllAssignments()">
-                                <span class="quick-action-icon">📖</span>
-                                <strong>Все задания</strong>
-                                <p>Показать все</p>
-                            </div>
-                            <div class="quick-action-card" onclick="openCompleted()">
-                                <span class="quick-action-icon">✅</span>
-                                <strong>Выполненные</strong>
-                                <p>Только выполненные</p>
-                            </div>
-                            <div class="quick-action-card" onclick="openPending()">
-                                <span class="quick-action-icon">⏳</span>
-                                <strong>В работе</strong>
-                                <p>Только активные</p>
-                            </div>
-                        </div>
-                    </div>
+                <div id="resultsList" class="section-content">
+                    <div class="loading">Загрузка оценок...</div>
                 </div>
             </div>
         </div>

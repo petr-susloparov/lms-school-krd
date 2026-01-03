@@ -1,4 +1,6 @@
-// AUTHENTICATION LOGIC
+// AUTHENTICATION LOGIC - без localStorage
+let currentUser = null;
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔐 Авторизация загружена');
     
@@ -9,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     initRoleTabs();
     initLoginForm();
-    setupDemoData();
 });
 
 function initRoleTabs() {
@@ -18,10 +19,6 @@ function initRoleTabs() {
         tab.addEventListener('click', function() {
             tabs.forEach(t => t.classList.remove('active'));
             this.classList.add('active');
-            
-            // Автоматически заполняем демо данные
-            const role = this.dataset.role;
-            fillDemoData(role);
         });
     });
 }
@@ -69,7 +66,7 @@ async function loginUser(email, password, role) {
         // Ищем пользователя по email, паролю и роли
         const { data: users, error } = await window.supabase
             .from('users')
-            .select('id, email, password, role, full_name, class_name')
+            .select('id, email, role, full_name, class_name')
             .eq('email', email)
             .eq('password', password)
             .eq('role', role);
@@ -83,16 +80,11 @@ async function loginUser(email, password, role) {
             throw new Error('Неверный email или пароль');
         }
         
-        const user = users[0];
-        
-        // Удаляем пароль из данных пользователя перед сохранением
-        const { password: _, ...userWithoutPassword } = user;
-        
-        // Сохраняем данные пользователя в localStorage
-        localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+        // Сохраняем пользователя только в памяти
+        currentUser = users[0];
         
         // Перенаправляем в зависимости от роли
-        if (user.role === 'student') {
+        if (currentUser.role === 'student') {
             window.location.href = 'dashboard-student.html';
         } else {
             window.location.href = 'dashboard-teacher.html';
@@ -122,32 +114,15 @@ function showError(message) {
     }
 }
 
-// Функции для демо данных
-function setupDemoData() {
-    // Заполняем данные для активной вкладки
-    const activeTab = document.querySelector('.role-tab.active');
-    if (activeTab) {
-        fillDemoData(activeTab.dataset.role);
-    }
-}
-
-function fillDemoData(role) {
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    
-    if (role === 'teacher') {
-        emailInput.value = 'teacher@school.ru';
-        passwordInput.value = '123456';
-    } else {
-        emailInput.value = 'student1@school.ru';
-        passwordInput.value = '111111';
-    }
-}
-
-// Глобальная функция выхода - ИСПРАВЛЕНА
+// Глобальная функция выхода
 window.logout = function() {
     if (confirm('Вы уверены, что хотите выйти?')) {
-        localStorage.removeItem('user');
+        currentUser = null;
         window.location.href = 'index.html';
     }
+};
+
+// Экспортируем текущего пользователя
+window.getCurrentUser = function() {
+    return currentUser;
 };

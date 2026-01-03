@@ -63,8 +63,3 @@ if (!document.querySelector('#alert-styles')) {
     `;
     document.head.appendChild(style);
 }
-
-// Утилиты
-function showAlert(message, type = 'error') {
-    alert(message);
-}

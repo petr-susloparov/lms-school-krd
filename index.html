@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="auth-page">
-        <div class="auth-container">
-            <div class="auth-header">
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
                 <div class="logo">
                     <img src="assets/logo.png" alt="LMS Школа" class="logo-img">
                     <div class="logo-text">
@@ -18,67 +18,57 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </header>
 
-            <div class="auth-card">
-                <h2>Вход в систему</h2>
-                
-                <div class="role-tabs">
-                    <button class="role-tab active" data-role="student" type="button">
-                        <span class="tab-icon">👨‍🎓</span>
-                        <span>Ученик</span>
-                    </button>
-                    <button class="role-tab" data-role="teacher" type="button">
-                        <span class="tab-icon">👩‍🏫</span>
-                        <span>Учитель</span>
-                    </button>
-                </div>
-
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" class="form-control" 
-                               placeholder="example@school.ru" required>
+    <main class="main-content">
+        <div class="container">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2>Вход в систему</h2>
+                    
+                    <div class="role-tabs">
+                        <button class="role-tab active" data-role="student" type="button">
+                            <span class="tab-icon">👨‍🎓</span>
+                            <span>Ученик</span>
+                        </button>
+                        <button class="role-tab" data-role="teacher" type="button">
+                            <span class="tab-icon">👩‍🏫</span>
+                            <span>Учитель</span>
+                        </button>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="password">Пароль</label>
-                        <input type="password" id="password" class="form-control" 
-                               placeholder="Введите пароль" required>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
-                        <span class="btn-text">Войти</span>
-                        <span class="btn-loading" style="display: none;">
-                            <span class="spinner"></span>
-                        </span>
-                    </button>
-                    
-                    <div id="errorMessage" class="error-message" style="display: none;"></div>
-                </form>
 
-                <div class="test-users">
-                    <h4>Тестовые аккаунты:</h4>
-                    <div class="user-list">
-                        <div class="user-card">
-                            <strong>teacher@school.ru</strong>
-                            <div class="role">👩‍🏫 Учитель</div>
-                            <div class="password">Пароль: 123456</div>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" class="form-control" 
+                                   placeholder="example@school.ru" required>
                         </div>
-                        <div class="user-card">
-                            <strong>student1@school.ru</strong>
-                            <div class="role">👨‍🎓 Ученик 11А</div>
-                            <div class="password">Пароль: 111111</div>
+                        
+                        <div class="form-group">
+                            <label for="password">Пароль</label>
+                            <input type="password" id="password" class="form-control" 
+                                   placeholder="Введите пароль" required>
                         </div>
-                        <div class="user-card">
-                            <strong>student2@school.ru</strong>
-                            <div class="role">👩‍🎓 Ученик 11А</div>
-                            <div class="password">Пароль: 222222</div>
-                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+                            <span class="btn-text">Войти</span>
+                            <span class="btn-loading" style="display: none;">
+                                <span class="spinner"></span>
+                            </span>
+                        </button>
+                        
+                        <div id="errorMessage" class="error-message" style="display: none;"></div>
+                    </form>
+
+                    <div class="auth-info">
+                        <p>Для входа используйте email и пароль, выданные администратором.</p>
+                        <p>Выберите вашу роль (ученик или учитель) перед входом.</p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
