@@ -1,95 +1,126 @@
-// ========================
 // AUTHENTICATION LOGIC
-// ========================
-
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔐 Система авторизации загружена');
+    console.log('🔐 Авторизация загружена');
+    
+    // Проверяем существующую сессию
+    checkSession();
     
     if (!window.supabase) {
-        showError('Системная ошибка: база данных недоступна');
+        showError('База данных недоступна');
         return;
     }
     
-    initRoleSelector();
+    initRoleTabs();
     initLoginForm();
 });
 
-function initRoleSelector() {
-    const roleButtons = document.querySelectorAll('.role-btn');
-    
-    roleButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            roleButtons.forEach(b => b.classList.remove('active'));
+function checkSession() {
+    const user = localStorage.getItem('user');
+    if (user) {
+        try {
+            const userData = JSON.parse(user);
+            if (userData.role === 'student') {
+                window.location.href = 'dashboard-student.html';
+            } else if (userData.role === 'teacher') {
+                window.location.href = 'dashboard-teacher.html';
+            }
+        } catch (e) {
+            localStorage.removeItem('user');
+        }
+    }
+}
+
+function initRoleTabs() {
+    const tabs = document.querySelectorAll('.role-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            tabs.forEach(t => t.classList.remove('active'));
             this.classList.add('active');
         });
     });
 }
 
 function initLoginForm() {
-    const loginForm = document.getElementById('loginForm');
+    const form = document.getElementById('loginForm');
     
-    loginForm.addEventListener('submit', async function(e) {
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
-        const activeRoleBtn = document.querySelector('.role-btn.active');
-        const selectedRole = activeRoleBtn ? activeRoleBtn.dataset.role : 'student';
+        const activeTab = document.querySelector('.role-tab.active');
+        const role = activeTab ? activeTab.dataset.role : 'student';
         
         if (!email || !password) {
-            showError('Введите email и пароль');
+            showError('Заполните все поля');
             return;
         }
         
-        await performLogin(email, password, selectedRole);
+        if (!isValidEmail(email)) {
+            showError('Введите корректный email');
+            return;
+        }
+        
+        await loginUser(email, password, role);
     });
 }
 
-async function performLogin(email, password, role) {
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+async function loginUser(email, password, role) {
     const errorEl = document.getElementById('errorMessage');
-    const submitBtn = document.querySelector('#loginForm button[type="submit"]');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
     
-    errorEl.style.display = 'none';
-    const originalText = submitBtn.textContent;
+    // Скрываем ошибку
+    if (errorEl) errorEl.style.display = 'none';
+    
+    // Показываем загрузку
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'flex';
+    submitBtn.disabled = true;
     
     try {
-        submitBtn.textContent = 'Вход...';
-        submitBtn.disabled = true;
-        
-        const { data, error } = await window.supabase
+        // Ищем пользователя в базе
+        const { data: users, error } = await window.supabase
             .from('users')
-            .select('id, email, role')
+            .select('id, email, role, full_name, class_name')
             .eq('email', email)
             .eq('password', password)
-            .eq('role', role)
-            .single();
+            .eq('role', role);
         
         if (error) {
-            showError('Неверный email или пароль');
-            return;
+            console.error('Ошибка Supabase:', error);
+            throw new Error('Ошибка подключения к базе');
         }
         
-        if (!data) {
-            showError('Пользователь не найден');
-            return;
+        if (!users || users.length === 0) {
+            throw new Error('Неверный email, пароль или роль');
         }
         
-        // Сохраняем данные
-        localStorage.setItem('user', JSON.stringify(data));
+        const user = users[0];
+        
+        // Сохраняем данные пользователя
+        localStorage.setItem('user', JSON.stringify(user));
         
         // Перенаправляем
-        if (data.role === 'student') {
+        if (user.role === 'student') {
             window.location.href = 'dashboard-student.html';
         } else {
             window.location.href = 'dashboard-teacher.html';
         }
         
     } catch (error) {
-        console.error('Ошибка:', error);
-        showError('Произошла ошибка при входе');
+        console.error('Ошибка входа:', error);
+        showError(error.message || 'Ошибка при входе');
         
     } finally {
-        submitBtn.textContent = originalText;
+        // Восстанавливаем кнопку
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
         submitBtn.disabled = false;
     }
 }
@@ -99,11 +130,14 @@ function showError(message) {
     if (errorEl) {
         errorEl.textContent = message;
         errorEl.style.display = 'block';
-        setTimeout(() => errorEl.style.display = 'none', 5000);
+        
+        setTimeout(() => {
+            errorEl.style.display = 'none';
+        }, 5000);
     }
 }
 
-// Глобальные функции
+// Глобальная функция выхода
 window.logout = function() {
     localStorage.removeItem('user');
     window.location.href = 'index.html';

@@ -3,257 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMS Школа - Вход в систему</title>
+    <title>LMS Школа - Вход</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-        }
-        
-        .header {
-            background: #2563eb;
-            padding: 20px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .header-inner {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            text-decoration: none;
-        }
-        
-        .logo-img {
-            width: 50px;
-            height: 50px;
-            background: white;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: #2563eb;
-            font-weight: bold;
-        }
-        
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .logo-name {
-            font-size: 20px;
-            font-weight: bold;
-            color: white;
-        }
-        
-        .logo-subtitle {
-            font-size: 14px;
-            color: rgba(255,255,255,0.8);
-        }
-        
-        .login-container {
-            max-width: 400px;
-            margin: 80px auto;
-            padding: 40px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .login-title {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #2c3e50;
-            font-size: 24px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #34495e;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e6ed;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-        }
-        
-        .role-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            background: #f8f9fa;
-            padding: 5px;
-            border-radius: 8px;
-        }
-        
-        .role-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            text-align: center;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .role-btn.active {
-            background: #2563eb;
-            color: white;
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
-        }
-        
-        .error-message {
-            color: #e74c3c;
-            margin-top: 15px;
-            padding: 10px;
-            background: #ffeaea;
-            border-radius: 6px;
-            display: none;
-            font-size: 14px;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s;
-            text-align: center;
-        }
-        
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-            width: 100%;
-            padding: 14px;
-        }
-        
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-        
-        .info-box {
-            margin-top: 25px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            font-size: 13px;
-            color: #666;
-            line-height: 1.5;
-        }
-        
-        @media (max-width: 768px) {
-            .login-container {
-                margin: 40px 20px;
-                padding: 30px 20px;
-            }
-            
-            .logo-name {
-                font-size: 18px;
-            }
-            
-            .logo-img {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-            }
-        }
-    </style>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="header-inner">
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="auth-header">
                 <div class="logo">
-                    <div class="logo-img">🏫</div>
+                    <div class="logo-icon">🏫</div>
                     <div class="logo-text">
-                        <span class="logo-name">LMS Школа</span>
-                        <span class="logo-subtitle">Образовательная платформа</span>
+                        <h1>LMS Школа</h1>
+                        <p>Образовательная платформа</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </header>
 
-    <div class="container">
-        <div class="login-container">
-            <h2 class="login-title">Вход в систему</h2>
-            
-            <div class="role-selector">
-                <div class="role-btn active" data-role="student">Ученик</div>
-                <div class="role-btn" data-role="teacher">Учитель</div>
-            </div>
-            
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="email">Email адрес</label>
-                    <input type="email" id="email" class="form-control" placeholder="example@school.ru" required>
-                </div>
+            <div class="auth-card">
+                <h2>Вход в систему</h2>
                 
-                <div class="form-group">
-                    <label for="password">Пароль</label>
-                    <input type="password" id="password" class="form-control" placeholder="Введите пароль" required>
+                <div class="role-tabs">
+                    <button class="role-tab active" data-role="student">
+                        <span class="tab-icon">👨‍🎓</span>
+                        <span>Ученик</span>
+                    </button>
+                    <button class="role-tab" data-role="teacher">
+                        <span class="tab-icon">👩‍🏫</span>
+                        <span>Учитель</span>
+                    </button>
                 </div>
-                
-                <button type="submit" class="btn btn-primary">Войти в систему</button>
-                
-                <div id="errorMessage" class="error-message">
-                    Неверный email или пароль
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" 
+                               placeholder="example@school.ru" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Пароль</label>
+                        <input type="password" id="password" class="form-control" 
+                               placeholder="Введите пароль" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span class="btn-text">Войти</span>
+                        <span class="btn-loading" style="display: none;">
+                            <span class="spinner"></span>
+                        </span>
+                    </button>
+                    
+                    <div id="errorMessage" class="error-message" style="display: none;"></div>
+                </form>
+
+                <div class="auth-info">
+                    <p><strong>Тестовые аккаунты:</strong></p>
+                    <p>Учитель: teacher@school.ru / teacher123</p>
+                    <p>Ученик: student1@school.ru / student123</p>
                 </div>
-            </form>
-            
-            <div class="info-box">
-                <strong>Для входа используйте:</strong><br>
-                • Email и пароль, выданные администратором<br>
-                • Выберите вашу роль (ученик или учитель)
             </div>
         </div>
     </div>
 
-    <!-- Подключаем скрипты -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
     <script src="js/auth.js"></script>
