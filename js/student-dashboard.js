@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     const user = await checkAuthorization();
     if (!user) return;
     
-    // Убрали setupLogoutButton - теперь кнопка работает через onclick
     await loadStudentData(user);
 });
 
@@ -36,9 +35,10 @@ async function checkAuthorization() {
 
 async function loadStudentData(user) {
     try {
+        // Сначала загружаем результаты, потом задания (как в HTML)
         await Promise.all([
-            loadMyAssignments(user),
-            loadMyResults(user)
+            loadMyResults(user),
+            loadMyAssignments(user)
         ]);
     } catch (error) {
         console.error('Ошибка загрузки данных:', error);
@@ -67,7 +67,7 @@ async function loadMyAssignments(user) {
             `)
             .eq('student_id', user.id)
             .order('is_completed', { ascending: true })
-            .order('homeworks(created_at)', { ascending: false }); // Сортировка по дате создания ДЗ
+            .order('homeworks(created_at)', { ascending: false });
         
         if (error) throw error;
         

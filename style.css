@@ -581,3 +581,41 @@ textarea.form-control {
         flex-direction: column;
     }
 }
+
+/* ... остальные стили остаются без изменений ... */
+
+/* Стили для выбора всех учеников */
+.student-option.select-all {
+    background: #e6f7ff;
+    border: 2px solid #91d5ff;
+    margin-bottom: 15px;
+}
+
+.student-option.select-all:hover {
+    background: #d1eaff;
+}
+
+.student-option.select-all.selected {
+    background: #1890ff;
+    color: white;
+}
+
+.student-option.select-all label {
+    font-size: 14px;
+    color: #1890ff;
+}
+
+.student-option.select-all.selected label {
+    color: white;
+}
+
+/* Класс заголовок */
+.class-header {
+    font-weight: bold;
+    color: #2563eb;
+    margin: 0 0 15px 0;
+    padding: 10px;
+    background: #f0f7ff;
+    border-radius: 5px;
+    text-align: center;
+}

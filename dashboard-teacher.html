@@ -67,9 +67,18 @@
                         </div>
                         
                         <div class="form-group">
+                            <label>Выберите класс *</label>
+                            <select id="classSelect" class="form-control" required>
+                                <option value="">Сначала выберите класс</option>
+                                <!-- Классы загрузятся через JS -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
                             <label>Выберите ученика *</label>
-                            <div id="studentsList">
-                                <!-- Список учеников загрузится через JS -->
+                            <div id="studentsList" class="student-select empty-state">
+                                <div class="empty-state-icon">👨‍🎓</div>
+                                <p>Сначала выберите класс</p>
                             </div>
                         </div>
                         
@@ -87,12 +96,22 @@
                     <form id="addTestForm">
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Выберите ученика *</label>
-                                <select id="testStudentSelect" class="form-control" required>
-                                    <option value="">Загрузка...</option>
+                                <label>Выберите класс *</label>
+                                <select id="testClassSelect" class="form-control" required>
+                                    <option value="">Сначала выберите класс</option>
+                                    <!-- Классы загрузятся через JS -->
                                 </select>
                             </div>
                             
+                            <div class="form-group">
+                                <label>Выберите ученика *</label>
+                                <select id="testStudentSelect" class="form-control" required disabled>
+                                    <option value="">Сначала выберите класс</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
                             <div class="form-group">
                                 <label>Предмет *</label>
                                 <select id="testSubject" class="form-control" required>
@@ -104,12 +123,12 @@
                                     <option value="Литература">Литература</option>
                                 </select>
                             </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Название теста *</label>
-                            <input type="text" id="testName" class="form-control" 
-                                   placeholder="Пробный экзамен" required>
+                            
+                            <div class="form-group">
+                                <label>Название теста *</label>
+                                <input type="text" id="testName" class="form-control" 
+                                       placeholder="Пробный экзамен" required>
+                            </div>
                         </div>
                         
                         <div class="form-row">

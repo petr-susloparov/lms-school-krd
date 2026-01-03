@@ -53,25 +53,88 @@ function setupTabs() {
 
 async function loadInitialData(user) {
     try {
-        await Promise.all([
-            loadStudentsForHomework(),
-            loadStudentsForTest()
-        ]);
+        await loadClasses();
     } catch (error) {
         console.error('Ошибка загрузки данных:', error);
         showMessage('Не удалось загрузить данные', 'error');
     }
 }
 
-async function loadStudentsForHomework() {
-    const container = document.getElementById('studentsList');
+async function loadClasses() {
+    try {
+        // Загружаем все классы из БД
+        const { data: students, error } = await window.supabase
+            .from('users')
+            .select('class')
+            .eq('role', 'student')
+            .not('class', 'is', null);
+        
+        if (error) throw error;
+        
+        // Получаем уникальные классы
+        const uniqueClasses = [...new Set(students.map(s => s.class).filter(c => c))].sort();
+        
+        // Заполняем выпадающие списки классов
+        const classSelect = document.getElementById('classSelect');
+        const testClassSelect = document.getElementById('testClassSelect');
+        
+        if (classSelect) {
+            classSelect.innerHTML = '<option value="">Выберите класс</option>';
+            uniqueClasses.forEach(className => {
+                const option = document.createElement('option');
+                option.value = className;
+                option.textContent = className;
+                classSelect.appendChild(option);
+            });
+        }
+        
+        if (testClassSelect) {
+            testClassSelect.innerHTML = '<option value="">Выберите класс</option>';
+            uniqueClasses.forEach(className => {
+                const option = document.createElement('option');
+                option.value = className;
+                option.textContent = className;
+                testClassSelect.appendChild(option);
+            });
+        }
+        
+        // Добавляем обработчики изменения класса
+        if (classSelect) {
+            classSelect.addEventListener('change', function() {
+                loadStudentsByClass(this.value, 'studentsList');
+            });
+        }
+        
+        if (testClassSelect) {
+            testClassSelect.addEventListener('change', function() {
+                loadStudentsByClassForTest(this.value);
+            });
+        }
+        
+    } catch (error) {
+        console.error('Ошибка загрузки классов:', error);
+    }
+}
+
+async function loadStudentsByClass(className, containerId) {
+    const container = document.getElementById(containerId);
+    
+    if (!className) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">👨‍🎓</div>
+                <p>Сначала выберите класс</p>
+            </div>
+        `;
+        return;
+    }
     
     try {
         const { data: students, error } = await window.supabase
             .from('users')
             .select('id, email, full_name, class')
             .eq('role', 'student')
-            .order('class')
+            .eq('class', className)
             .order('full_name');
         
         if (error) throw error;
@@ -79,102 +142,116 @@ async function loadStudentsForHomework() {
         container.innerHTML = '';
         
         if (!students || students.length === 0) {
-            container.innerHTML = '<div class="empty-state">Нет учеников в системе</div>';
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">👨‍🎓</div>
+                    <p>В классе ${className} нет учеников</p>
+                </div>
+            `;
             return;
         }
         
-        // Группируем учеников по классам
-        const studentsByClass = {};
-        students.forEach(student => {
-            const className = student.class || 'Без класса';
-            if (!studentsByClass[className]) {
-                studentsByClass[className] = [];
-            }
-            studentsByClass[className].push(student);
+        const classHeader = document.createElement('div');
+        classHeader.className = 'class-header';
+        classHeader.textContent = `Класс: ${className}`;
+        classHeader.style.cssText = `
+            font-weight: bold;
+            color: #2563eb;
+            margin: 0 0 15px 0;
+            padding: 10px;
+            background: #f0f7ff;
+            border-radius: 5px;
+            text-align: center;
+        `;
+        container.appendChild(classHeader);
+        
+        // Создаем опцию "Выбрать всех"
+        const selectAllOption = document.createElement('div');
+        selectAllOption.className = 'student-option select-all';
+        selectAllOption.innerHTML = `
+            <input type="checkbox" id="select_all_${className}">
+            <label for="select_all_${className}">
+                <strong>✅ Выбрать всех учеников класса</strong>
+            </label>
+        `;
+        
+        selectAllOption.addEventListener('click', function() {
+            const isChecked = this.querySelector('input').checked;
+            document.querySelectorAll('.student-option:not(.select-all) input').forEach(input => {
+                input.checked = isChecked;
+                input.closest('.student-option').classList.toggle('selected', isChecked);
+            });
         });
         
-        // Создаем список с группами
-        for (const className in studentsByClass) {
-            const classHeader = document.createElement('div');
-            classHeader.className = 'class-header';
-            classHeader.textContent = `Класс: ${className}`;
-            classHeader.style.cssText = `
-                font-weight: bold;
-                color: #2563eb;
-                margin: 15px 0 10px 0;
-                padding: 5px 10px;
-                background: #f0f7ff;
-                border-radius: 5px;
+        container.appendChild(selectAllOption);
+        
+        // Добавляем учеников
+        students.forEach(student => {
+            const studentOption = document.createElement('div');
+            studentOption.className = 'student-option';
+            studentOption.innerHTML = `
+                <input type="checkbox" name="student" value="${student.id}" 
+                       id="student_${student.id}">
+                <label for="student_${student.id}">
+                    <strong>${student.full_name || student.email}</strong><br>
+                    <small style="color: #666;">${student.email}</small>
+                </label>
             `;
-            container.appendChild(classHeader);
             
-            studentsByClass[className].forEach(student => {
-                const studentOption = document.createElement('div');
-                studentOption.className = 'student-option';
-                studentOption.innerHTML = `
-                    <input type="radio" name="student" value="${student.id}" 
-                           id="student_${student.id}">
-                    <label for="student_${student.id}">
-                        <strong>${student.full_name || student.email}</strong><br>
-                        <small style="color: #666;">${student.email}</small>
-                    </label>
-                `;
+            studentOption.addEventListener('click', function(e) {
+                if (e.target.type !== 'checkbox') {
+                    const checkbox = this.querySelector('input');
+                    checkbox.checked = !checkbox.checked;
+                }
+                this.classList.toggle('selected', this.querySelector('input').checked);
                 
-                studentOption.addEventListener('click', function() {
-                    document.querySelectorAll('.student-option').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    this.classList.add('selected');
-                    this.querySelector('input').checked = true;
-                });
-                
-                container.appendChild(studentOption);
+                // Обновляем "Выбрать всех"
+                const allChecked = document.querySelectorAll('.student-option:not(.select-all) input:checked').length === 
+                                 document.querySelectorAll('.student-option:not(.select-all)').length;
+                document.querySelector(`#select_all_${className}`).checked = allChecked;
             });
-        }
+            
+            container.appendChild(studentOption);
+        });
         
     } catch (error) {
         container.innerHTML = '<div class="error">Не удалось загрузить учеников</div>';
     }
 }
 
-async function loadStudentsForTest() {
+async function loadStudentsByClassForTest(className) {
     const select = document.getElementById('testStudentSelect');
+    
+    if (!className) {
+        select.innerHTML = '<option value="">Сначала выберите класс</option>';
+        select.disabled = true;
+        return;
+    }
     
     try {
         const { data: students, error } = await window.supabase
             .from('users')
             .select('id, email, full_name, class')
             .eq('role', 'student')
-            .order('class')
+            .eq('class', className)
             .order('full_name');
         
         if (error) throw error;
         
         select.innerHTML = '<option value="">Выберите ученика...</option>';
+        select.disabled = false;
         
-        // Группируем по классам в выпадающем списке
-        const studentsByClass = {};
-        students.forEach(student => {
-            const className = student.class || 'Без класса';
-            if (!studentsByClass[className]) {
-                studentsByClass[className] = [];
-            }
-            studentsByClass[className].push(student);
-        });
-        
-        for (const className in studentsByClass) {
-            const optgroup = document.createElement('optgroup');
-            optgroup.label = `Класс ${className}`;
-            
-            studentsByClass[className].forEach(student => {
-                const option = document.createElement('option');
-                option.value = student.id;
-                option.textContent = `${student.full_name || student.email} (${student.email})`;
-                optgroup.appendChild(option);
-            });
-            
-            select.appendChild(optgroup);
+        if (!students || students.length === 0) {
+            select.innerHTML = '<option value="">В классе нет учеников</option>';
+            return;
         }
+        
+        students.forEach(student => {
+            const option = document.createElement('option');
+            option.value = student.id;
+            option.textContent = `${student.full_name || student.email} (${student.email})`;
+            select.appendChild(option);
+        });
         
     } catch (error) {
         select.innerHTML = '<option value="">Ошибка загрузки</option>';
@@ -210,9 +287,15 @@ async function createHomework(user) {
     const form = document.getElementById('addHomeworkForm');
     const messageEl = document.getElementById('homeworkMessage');
     
-    const selectedStudent = document.querySelector('input[name="student"]:checked');
-    if (!selectedStudent) {
-        showMessage('Выберите ученика для задания', 'error', messageEl);
+    const selectedClass = document.getElementById('classSelect').value;
+    if (!selectedClass) {
+        showMessage('Выберите класс', 'error', messageEl);
+        return;
+    }
+    
+    const selectedStudents = document.querySelectorAll('input[name="student"]:checked');
+    if (selectedStudents.length === 0) {
+        showMessage('Выберите хотя бы одного ученика', 'error', messageEl);
         return;
     }
     
@@ -244,21 +327,30 @@ async function createHomework(user) {
         
         if (homeworkError) throw homeworkError;
         
-        // Назначаем задание ученику
-        const assignmentData = {
+        // Создаем задания для каждого выбранного ученика
+        const assignments = Array.from(selectedStudents).map(student => ({
             homework_id: homework.id,
-            student_id: selectedStudent.value
-        };
+            student_id: student.value
+        }));
         
         const { error: assignmentError } = await window.supabase
             .from('assignments')
-            .insert([assignmentData]);
+            .insert(assignments);
         
         if (assignmentError) throw assignmentError;
         
         // Успех
-        showMessage('✅ Задание успешно создано и назначено ученику!', 'success', messageEl);
+        showMessage(`✅ Задание успешно создано для ${assignments.length} учеников!`, 'success', messageEl);
         form.reset();
+        
+        // Сбрасываем выбор класса
+        document.getElementById('classSelect').value = '';
+        document.getElementById('studentsList').innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">👨‍🎓</div>
+                <p>Сначала выберите класс</p>
+            </div>
+        `;
         
     } catch (error) {
         console.error('Ошибка создания ДЗ:', error);
@@ -342,6 +434,9 @@ async function createTestResult() {
         // Сбрасываем значения по умолчанию
         document.getElementById('primaryMaxScore').value = '100';
         document.getElementById('testDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('testClassSelect').value = '';
+        document.getElementById('testStudentSelect').innerHTML = '<option value="">Сначала выберите класс</option>';
+        document.getElementById('testStudentSelect').disabled = true;
         
     } catch (error) {
         console.error('Ошибка сохранения результата:', error);

@@ -126,9 +126,11 @@ function showError(message) {
     }
 }
 
-// Глобальная функция выхода - ИСПРАВЛЕНА
+// Глобальная функция выхода - КОРРЕКТНО ИСПРАВЛЕНА
 window.logout = function() {
     console.log('Выход из системы...');
-    localStorage.removeItem('user');
+    localStorage.clear(); // Очищаем ВСЕ данные localStorage
+    // Принудительный редирект
     window.location.href = 'index.html';
+    return false; // Предотвращаем любые другие события
 };
