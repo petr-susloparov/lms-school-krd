@@ -1,63 +1,48 @@
+// ========================
 // STUDENT DASHBOARD LOGIC
-let currentStudent = null;
+// ========================
 
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('🎓 Кабинет ученика загружен');
+    console.log('Загружен личный кабинет ученика');
     
-    // Проверяем авторизацию через сессию
-    await checkAuth();
+    const user = await checkAuthorization();
+    if (!user) return;
     
-    if (!currentStudent) return;
-    
-    updateUserInfo(currentStudent);
+    setupUserInfo(user);
     setupLogoutButton();
-    await loadStudentData(currentStudent);
+    await loadStudentData(user);
 });
 
-async function checkAuth() {
-    try {
-        // Получаем пользователя из глобальной переменной
-        const user = window.getCurrentUser ? window.getCurrentUser() : null;
-        
-        if (!user) {
-            // Если пользователь не в памяти, перенаправляем на страницу входа
-            window.location.href = 'index.html';
-            return null;
-        }
-        
-        if (user.role !== 'student') {
-            alert('Эта страница только для учеников');
-            window.location.href = 'dashboard-teacher.html';
-            return null;
-        }
-        
-        console.log('👤 Авторизованный ученик:', user);
-        currentStudent = user;
-        return user;
-        
-    } catch (e) {
-        console.error('Ошибка проверки авторизации:', e);
+async function checkAuthorization() {
+    const userJson = localStorage.getItem('user');
+    if (!userJson) {
+        alert('Доступ запрещен. Пожалуйста, войдите в систему.');
         window.location.href = 'index.html';
         return null;
     }
+    
+    let user;
+    try {
+        user = JSON.parse(userJson);
+    } catch (e) {
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
+        return null;
+    }
+    
+    if (user.role !== 'student') {
+        alert('Эта страница доступна только для учеников.');
+        window.location.href = 'dashboard-teacher.html';
+        return null;
+    }
+    
+    return user;
 }
 
-function updateUserInfo(user) {
-    // Обновляем приветствие
-    const welcomeTitle = document.getElementById('welcomeTitle');
-    const userNameEl = document.getElementById('userName');
-    const userClassEl = document.getElementById('userClass');
-    
-    if (welcomeTitle && user.full_name) {
-        welcomeTitle.textContent = `Добро пожаловать, ${user.full_name}!`;
-    }
-    
-    if (userNameEl) {
-        userNameEl.textContent = user.full_name || user.email;
-    }
-    
-    if (userClassEl && user.class_name) {
-        userClassEl.textContent = `Класс: ${user.class_name}`;
+function setupUserInfo(user) {
+    const userEmailEl = document.getElementById('userEmail');
+    if (userEmailEl) {
+        userEmailEl.textContent = user.email;
     }
 }
 
@@ -65,251 +50,255 @@ function setupLogoutButton() {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function() {
-            window.logout();
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            }
         });
     }
 }
 
 async function loadStudentData(user) {
     try {
-        await Promise.all([
-            loadAssignments(user),
-            loadResults(user)
-        ]);
+        await loadMyAssignments(user);
+        await loadMyResults(user);
     } catch (error) {
         console.error('Ошибка загрузки данных:', error);
-        showNotification('Не удалось загрузить данные. Попробуйте обновить страницу.', 'error');
+        showError('Не удалось загрузить данные');
     }
 }
 
-async function loadAssignments(user) {
-    const container = document.getElementById('assignmentsList');
+async function loadMyAssignments(user) {
+    const container = document.getElementById('myAssignments');
     
     try {
-        // Убираем индикатор загрузки
-        container.classList.remove('loading');
-        
-        // Получаем назначенные задания
         const { data: assignments, error } = await window.supabase
             .from('assignments')
             .select(`
                 id,
-                assigned_at,
+                is_completed,
+                completed_at,
                 homeworks (
                     id,
                     title,
                     subject,
                     description,
-                    task_url,
-                    created_at,
-                    teacher_id,
-                    users!homeworks_teacher_id_fkey(full_name)
+                    file_url,
+                    due_date
                 )
             `)
             .eq('student_id', user.id)
-            .eq('homeworks.is_active', true)
-            .order('homeworks(created_at)', { ascending: false });
+            .order('is_completed', { ascending: true })
+            .order('homeworks(due_date)', { ascending: true });
         
-        if (error) {
-            console.error('Ошибка загрузки заданий:', error);
-            throw error;
-        }
+        if (error) throw error;
         
-        console.log('📚 Загружено заданий:', assignments?.length || 0);
-        
-        // Очищаем контейнер
         container.innerHTML = '';
         
         if (!assignments || assignments.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-icon">📭</div>
-                    <p>Нет заданий</p>
-                    <small>Учитель еще не назначил вам заданий</small>
+                    <div class="empty-state-icon">📭</div>
+                    <h3>Нет заданий</h3>
+                    <p>У вас пока нет назначенных заданий</p>
                 </div>
             `;
             return;
         }
         
-        // Создаем контейнер для заданий (стопкой)
+        const assignmentsList = document.createElement('div');
+        assignmentsList.className = 'assignments-list';
+        
         assignments.forEach(assignment => {
-            const assignmentCard = createAssignmentCard(assignment);
-            container.appendChild(assignmentCard);
+            const hw = assignment.homeworks;
+            const dueDate = new Date(hw.due_date);
+            const today = new Date();
+            const daysDiff = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+            
+            let statusClass = assignment.is_completed ? 'completed' : 
+                            daysDiff < 0 ? 'late' : '';
+            
+            let statusText = '';
+            let statusColor = '';
+            
+            if (assignment.is_completed) {
+                statusText = 'Выполнено';
+                statusColor = 'status-completed';
+            } else if (daysDiff < 0) {
+                statusText = 'Просрочено';
+                statusColor = 'status-late';
+            } else if (daysDiff === 0) {
+                statusText = 'Сдать сегодня';
+                statusColor = 'status-pending';
+            } else if (daysDiff <= 3) {
+                statusText = `Осталось ${daysDiff} дня`;
+                statusColor = 'status-pending';
+            } else {
+                statusText = `Осталось ${daysDiff} дней`;
+                statusColor = 'status-pending';
+            }
+            
+            const assignmentItem = document.createElement('div');
+            assignmentItem.className = `assignment-item ${statusClass}`;
+            assignmentItem.innerHTML = `
+                <div class="assignment-title">${hw.title}</div>
+                <div class="assignment-meta">
+                    <span class="assignment-subject">${hw.subject}</span>
+                    <span class="assignment-due">📅 Срок: ${dueDate.toLocaleDateString('ru-RU')}</span>
+                    <span class="status-badge ${statusColor}">${statusText}</span>
+                </div>
+                ${hw.description ? `<p style="margin: 10px 0; color: #555;">${hw.description}</p>` : ''}
+                ${hw.file_url ? `
+                    <a href="${hw.file_url}" class="file-link" target="_blank" rel="noopener">
+                        📎 Скачать задание
+                    </a>
+                ` : ''}
+                
+                ${!assignment.is_completed ? `
+                    <button onclick="markAsCompleted(${assignment.id})" class="complete-btn">
+                        ✅ Отметить как выполненное
+                    </button>
+                ` : assignment.completed_at ? `
+                    <p style="color: #27ae60; margin-top: 10px; font-size: 14px;">
+                        ✅ Выполнено: ${new Date(assignment.completed_at).toLocaleDateString('ru-RU')}
+                    </p>
+                ` : ''}
+            `;
+            
+            assignmentsList.appendChild(assignmentItem);
         });
         
+        container.appendChild(assignmentsList);
+        
     } catch (error) {
-        console.error('Ошибка отображения заданий:', error);
+        console.error('Ошибка загрузки заданий:', error);
         container.innerHTML = `
-            <div class="error-state">
-                <div class="error-icon">⚠️</div>
-                <p>Ошибка загрузки заданий</p>
-                <button class="btn-retry" onclick="location.reload()">
-                    <span class="btn-icon">🔄</span>
-                    Попробовать снова
-                </button>
+            <div class="empty-state">
+                <div class="empty-state-icon">⚠️</div>
+                <h3>Ошибка загрузки</h3>
+                <p>Не удалось загрузить задания</p>
             </div>
         `;
     }
 }
 
-function createAssignmentCard(assignment) {
-    const hw = assignment.homeworks;
-    if (!hw) return document.createElement('div');
-    
-    const card = document.createElement('div');
-    card.className = 'assignment-card';
-    
-    const teacherName = hw.users?.full_name || 'Учитель';
-    const createdDate = new Date(hw.created_at).toLocaleDateString('ru-RU');
-    const assignedDate = new Date(assignment.assigned_at).toLocaleDateString('ru-RU');
-    
-    card.innerHTML = `
-        <div class="assignment-header">
-            <div class="assignment-title">
-                <h3>${hw.title}</h3>
-                <span class="assignment-subject">${hw.subject}</span>
-            </div>
-        </div>
-        
-        <div class="assignment-meta">
-            <div class="meta-item">
-                <span class="meta-icon">👩‍🏫</span>
-                <span>Преподаватель: ${teacherName}</span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-icon">📅</span>
-                <span>Добавлено: ${createdDate}</span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-icon">📅</span>
-                <span>Назначено: ${assignedDate}</span>
-            </div>
-        </div>
-        
-        ${hw.description ? `
-            <div class="assignment-description">
-                <strong>Описание:</strong>
-                <p>${hw.description}</p>
-            </div>
-        ` : ''}
-        
-        <div class="assignment-actions">
-            <a href="${hw.task_url}" target="_blank" class="btn btn-primary" rel="noopener noreferrer">
-                <span class="btn-icon">🔗</span>
-                Открыть задание
-            </a>
-        </div>
-    `;
-    
-    return card;
-}
-
-async function loadResults(user) {
-    const container = document.getElementById('resultsList');
+async function loadMyResults(user) {
+    const container = document.getElementById('myResults');
     
     try {
-        // Убираем индикатор загрузки
-        container.classList.remove('loading');
-        
         const { data: results, error } = await window.supabase
             .from('test_results')
             .select('*')
             .eq('student_id', user.id)
-            .order('created_at', { ascending: false })
-            .limit(10);
+            .order('test_date', { ascending: false })
+            .limit(6);
         
         if (error) throw error;
-        
-        console.log('📊 Загружено оценок:', results?.length || 0);
         
         container.innerHTML = '';
         
         if (!results || results.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-icon">📊</div>
-                    <p>Нет оценок</p>
-                    <small>Здесь появятся ваши оценки после тестов</small>
+                    <div class="empty-state-icon">📊</div>
+                    <h3>Нет результатов</h3>
+                    <p>Результаты тестов пока отсутствуют</p>
                 </div>
             `;
             return;
         }
         
-        // Создаем контейнер для результатов (стопкой)
+        const resultsGrid = document.createElement('div');
+        resultsGrid.className = 'results-grid';
+        
         results.forEach(result => {
-            const resultCard = createResultCard(result);
-            container.appendChild(resultCard);
+            const percentage = Math.round((result.total_score / result.total_max_score) * 100);
+            let scoreClass = 'score-excellent';
+            
+            if (percentage >= 80) scoreClass = 'score-excellent';
+            else if (percentage >= 60) scoreClass = 'score-good';
+            else scoreClass = 'score-poor';
+            
+            const resultCard = document.createElement('div');
+            resultCard.className = 'result-card';
+            resultCard.innerHTML = `
+                <div class="result-score-main">
+                    ${result.total_score}
+                    <span class="result-score-primary">/ ${result.total_max_score}</span>
+                </div>
+                <div class="score-progress">
+                    <div class="score-progress-bar ${scoreClass}" style="width: ${percentage}%"></div>
+                </div>
+                <div class="result-subject">${result.subject}</div>
+                <div class="result-name">${result.test_name}</div>
+                ${result.secondary_score ? `
+                    <div class="result-score-secondary">
+                        (${result.primary_score}/${result.primary_max_score} + 
+                         ${result.secondary_score}/${result.secondary_max_score})
+                    </div>
+                ` : ''}
+                <div class="result-date">📅 ${new Date(result.test_date).toLocaleDateString('ru-RU')}</div>
+            `;
+            
+            resultsGrid.appendChild(resultCard);
         });
         
+        container.appendChild(resultsGrid);
+        
     } catch (error) {
-        console.error('Ошибка загрузки оценок:', error);
+        console.error('Ошибка загрузки результатов:', error);
         container.innerHTML = `
-            <div class="error-state">
-                <div class="error-icon">⚠️</div>
-                <p>Ошибка загрузки оценок</p>
-                <button class="btn-retry" onclick="location.reload()">
-                    <span class="btn-icon">🔄</span>
-                    Попробовать снова
-                </button>
+            <div class="empty-state">
+                <div class="empty-state-icon">⚠️</div>
+                <h3>Ошибка загрузки</h3>
+                <p>Не удалось загрузить результаты</p>
             </div>
         `;
     }
 }
 
-function createResultCard(result) {
-    const card = document.createElement('div');
-    card.className = 'result-card';
-    
-    const percentage = Math.round((result.score / result.max_score) * 100);
-    const date = new Date(result.created_at).toLocaleDateString('ru-RU');
-    
-    // Определяем цвет по проценту
-    let color = '#2563eb';
-    let grade = '';
-    
-    if (percentage >= 90) {
-        color = '#27ae60';
-        grade = 'Отлично';
-    } else if (percentage >= 75) {
-        color = '#2ecc71';
-        grade = 'Хорошо';
-    } else if (percentage >= 60) {
-        color = '#f39c12';
-        grade = 'Удовлетворительно';
-    } else {
-        color = '#e74c3c';
-        grade = 'Неудовлетворительно';
-    }
-    
-    card.innerHTML = `
-        <div class="result-header">
-            <div class="result-title">
-                <h3>${result.test_name}</h3>
-                <span class="result-subject">${result.subject}</span>
-            </div>
-            <div class="result-date">${date}</div>
-        </div>
-        
-        <div class="result-content">
-            <div class="result-score" style="color: ${color}">
-                <div class="score-value">
-                    <span class="primary-score">${result.score}</span>
-                    <span class="score-separator">из</span>
-                    <span class="max-score">${result.max_score}</span>
-                </div>
-                <div class="score-percentage">(${percentage}%)</div>
-                <div class="score-grade">${grade}</div>
-            </div>
-        </div>
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.style.cssText = `
+        background: #ffeaea;
+        color: #e74c3c;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+        text-align: center;
     `;
+    errorDiv.textContent = message;
     
-    return card;
+    const container = document.querySelector('.container');
+    if (container) {
+        container.insertBefore(errorDiv, container.firstChild);
+        setTimeout(() => errorDiv.remove(), 5000);
+    }
 }
 
-function showNotification(message, type = 'info') {
-    if (window.showNotification) {
-        window.showNotification(message, type === 'error' ? 'error' : 'success');
-    } else {
-        alert(message);
+// Глобальные функции
+window.markAsCompleted = async function(assignmentId) {
+    if (!confirm('Отметить задание как выполненное?')) return;
+    
+    try {
+        const { error } = await window.supabase
+            .from('assignments')
+            .update({ 
+                is_completed: true,
+                completed_at: new Date().toISOString()
+            })
+            .eq('id', assignmentId);
+        
+        if (error) throw error;
+        
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
+            await loadMyAssignments(user);
+        }
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Ошибка при обновлении задания');
     }
-}
+};

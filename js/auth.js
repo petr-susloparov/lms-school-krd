@@ -1,103 +1,135 @@
-// AUTHENTICATION LOGIC - без localStorage
-let currentUser = null;
+// ========================
+// AUTHENTICATION LOGIC
+// ========================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔐 Авторизация загружена');
+    console.log('🔐 Система авторизации загружена');
     
     if (!window.supabase) {
-        showError('База данных недоступна');
+        showError('Системная ошибка: база данных недоступна');
         return;
     }
     
-    initRoleTabs();
+    initRoleSelector();
     initLoginForm();
+    checkAuthStatus();
 });
 
-function initRoleTabs() {
-    const tabs = document.querySelectorAll('.role-tab');
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            tabs.forEach(t => t.classList.remove('active'));
+function checkAuthStatus() {
+    const user = localStorage.getItem('user');
+    if (user) {
+        try {
+            const userData = JSON.parse(user);
+            if (userData.role === 'student') {
+                window.location.href = 'dashboard-student.html';
+            } else if (userData.role === 'teacher') {
+                window.location.href = 'dashboard-teacher.html';
+            }
+        } catch (e) {
+            localStorage.removeItem('user');
+        }
+    }
+}
+
+function initRoleSelector() {
+    const roleButtons = document.querySelectorAll('.role-btn');
+    
+    roleButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            roleButtons.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
         });
     });
 }
 
 function initLoginForm() {
-    const form = document.getElementById('loginForm');
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
     
-    form.addEventListener('submit', async function(e) {
+    loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
-        const activeTab = document.querySelector('.role-tab.active');
-        const role = activeTab ? activeTab.dataset.role : 'student';
+        const activeRoleBtn = document.querySelector('.role-btn.active');
+        const selectedRole = activeRoleBtn ? activeRoleBtn.dataset.role : 'student';
         
         if (!email || !password) {
             showError('Введите email и пароль');
             return;
         }
         
-        if (!email.includes('@')) {
-            showError('Введите корректный email');
+        if (!validateEmail(email)) {
+            showError('Введите корректный email адрес');
             return;
         }
         
-        await loginUser(email, password, role);
+        await performLogin(email, password, selectedRole);
     });
 }
 
-async function loginUser(email, password, role) {
+function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}
+
+async function performLogin(email, password, role) {
     const errorEl = document.getElementById('errorMessage');
-    const submitBtn = document.getElementById('loginBtn');
-    const btnText = submitBtn.querySelector('.btn-text');
-    const btnLoading = submitBtn.querySelector('.btn-loading');
+    const submitBtn = document.querySelector('#loginForm button[type="submit"]');
     
-    // Скрываем предыдущие ошибки
-    if (errorEl) errorEl.style.display = 'none';
-    
-    // Показываем индикатор загрузки
-    btnText.style.display = 'none';
-    btnLoading.style.display = 'flex';
-    submitBtn.disabled = true;
+    errorEl.style.display = 'none';
+    const originalText = submitBtn.textContent;
     
     try {
-        // Ищем пользователя по email, паролю и роли
-        const { data: users, error } = await window.supabase
+        submitBtn.textContent = 'Вход...';
+        submitBtn.disabled = true;
+        
+        // Используем правильную структуру запроса
+        const { data, error } = await window.supabase
             .from('users')
-            .select('id, email, role, full_name, class_name')
-            .eq('email', email)
+            .select('id, email, role')
+            .eq('email', email.toLowerCase())
             .eq('password', password)
-            .eq('role', role);
+            .eq('role', role)
+            .single();
         
         if (error) {
-            console.error('Ошибка Supabase:', error);
-            throw new Error('Ошибка подключения к базе данных');
+            console.error('Ошибка запроса:', error);
+            if (error.code === 'PGRST116') {
+                showError('Пользователь не найден');
+            } else {
+                showError('Ошибка сервера. Попробуйте позже.');
+            }
+            return;
         }
         
-        if (!users || users.length === 0) {
-            throw new Error('Неверный email или пароль');
+        if (!data) {
+            showError('Неверный email или пароль');
+            return;
         }
         
-        // Сохраняем пользователя только в памяти
-        currentUser = users[0];
+        // Сохраняем данные пользователя
+        localStorage.setItem('user', JSON.stringify({
+            id: data.id,
+            email: data.email,
+            role: data.role
+        }));
         
-        // Перенаправляем в зависимости от роли
-        if (currentUser.role === 'student') {
-            window.location.href = 'dashboard-student.html';
-        } else {
-            window.location.href = 'dashboard-teacher.html';
-        }
+        // Перенаправляем
+        setTimeout(() => {
+            if (data.role === 'student') {
+                window.location.href = 'dashboard-student.html';
+            } else {
+                window.location.href = 'dashboard-teacher.html';
+            }
+        }, 500);
         
     } catch (error) {
-        console.error('Ошибка входа:', error);
-        showError(error.message || 'Ошибка при входе в систему');
+        console.error('Ошибка авторизации:', error);
+        showError('Произошла ошибка при входе');
         
     } finally {
-        // Восстанавливаем кнопку
-        btnText.style.display = 'inline';
-        btnLoading.style.display = 'none';
+        submitBtn.textContent = originalText;
         submitBtn.disabled = false;
     }
 }
@@ -107,22 +139,28 @@ function showError(message) {
     if (errorEl) {
         errorEl.textContent = message;
         errorEl.style.display = 'block';
+        errorEl.style.animation = 'shake 0.5s';
         
         setTimeout(() => {
             errorEl.style.display = 'none';
+            errorEl.style.animation = '';
         }, 5000);
     }
 }
 
-// Глобальная функция выхода
-window.logout = function() {
-    if (confirm('Вы уверены, что хотите выйти?')) {
-        currentUser = null;
-        window.location.href = 'index.html';
+// Добавляем анимацию для ошибки
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
     }
-};
+`;
+document.head.appendChild(style);
 
-// Экспортируем текущего пользователя
-window.getCurrentUser = function() {
-    return currentUser;
+// Глобальные функции
+window.logout = function() {
+    localStorage.removeItem('user');
+    window.location.href = 'index.html';
 };
