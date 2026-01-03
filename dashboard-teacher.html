@@ -5,6 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LMS - Кабинет учителя</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .teacher-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        .url-preview {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 12px;
+            word-break: break-all;
+        }
+        .url-preview a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        .url-preview a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -13,8 +53,8 @@
                 <div class="logo">
                     <div class="logo-icon">👩‍🏫</div>
                     <div class="logo-text">
-                        <h1>Панель управления</h1>
-                        <p>Учитель</p>
+                        <h1>Панель управления учителя</h1>
+                        <p>Образовательная платформа</p>
                     </div>
                 </div>
                 <div class="user-menu">
@@ -22,7 +62,10 @@
                         <span id="userName">Загрузка...</span>
                         <span id="userClass" class="user-class"></span>
                     </div>
-                    <button id="logoutBtn" class="btn btn-outline">Выйти</button>
+                    <button id="logoutBtn" class="btn btn-outline">
+                        <span class="btn-icon">🚪</span>
+                        Выйти
+                    </button>
                 </div>
             </div>
         </div>
@@ -30,189 +73,218 @@
 
     <main class="main-content">
         <div class="container">
-            <div class="teacher-dashboard">
-                <!-- Статистика -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">📚</div>
-                        <div class="stat-content">
-                            <div class="stat-value" id="totalHomeworks">0</div>
-                            <div class="stat-label">Всего заданий</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">👨‍🎓</div>
-                        <div class="stat-content">
-                            <div class="stat-value" id="totalStudents">0</div>
-                            <div class="stat-label">Всего учеников</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">✅</div>
-                        <div class="stat-content">
-                            <div class="stat-value" id="completedAssignments">0</div>
-                            <div class="stat-label">Выполнено</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">⏳</div>
-                        <div class="stat-content">
-                            <div class="stat-value" id="pendingAssignments">0</div>
-                            <div class="stat-label">Ожидает</div>
-                        </div>
-                    </div>
+            <!-- Статистика -->
+            <div class="teacher-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalStudents">0</div>
+                    <div class="stat-label">Всего учеников</div>
                 </div>
-
-                <!-- Вкладки -->
-                <div class="tabs">
-                    <button class="tab-btn active" data-tab="create-homework">
-                        <span class="tab-icon">➕</span>
-                        Новое задание
-                    </button>
-                    <button class="tab-btn" data-tab="my-homeworks">
-                        <span class="tab-icon">📋</span>
-                        Мои задания
-                    </button>
-                    <button class="tab-btn" data-tab="add-result">
-                        <span class="tab-icon">📊</span>
-                        Добавить оценку
-                    </button>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalHomeworks">0</div>
+                    <div class="stat-label">Созданных заданий</div>
                 </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="pendingAssignments">0</div>
+                    <div class="stat-label">Заданий в работе</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="completedAssignments">0</div>
+                    <div class="stat-label">Выполнено заданий</div>
+                </div>
+            </div>
 
-                <!-- Создание задания -->
-                <div id="create-homework" class="tab-content active">
-                    <div class="card">
-                        <h2>Создать новое задание</h2>
-                        <form id="createHomeworkForm">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Название задания *</label>
-                                    <input type="text" id="homeworkTitle" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Предмет *</label>
-                                    <select id="homeworkSubject" class="form-control" required>
-                                        <option value="">Выберите предмет</option>
-                                        <option value="Математика">Математика</option>
-                                        <option value="Физика">Физика</option>
-                                        <option value="Информатика">Информатика</option>
-                                        <option value="Русский язык">Русский язык</option>
-                                        <option value="Литература">Литература</option>
-                                        <option value="История">История</option>
-                                        <option value="Обществознание">Обществознание</option>
-                                        <option value="Английский язык">Английский язык</option>
-                                    </select>
-                                </div>
-                            </div>
+            <!-- Вкладки -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="create-homework">
+                    <span class="tab-icon">➕</span>
+                    Новое задание
+                </button>
+                <button class="tab-btn" data-tab="my-homeworks">
+                    <span class="tab-icon">📋</span>
+                    Мои задания
+                </button>
+                <button class="tab-btn" data-tab="add-result">
+                    <span class="tab-icon">📊</span>
+                    Добавить оценку
+                </button>
+                <button class="tab-btn" data-tab="students">
+                    <span class="tab-icon">👨‍🎓</span>
+                    Ученики
+                </button>
+            </div>
 
+            <!-- Создание задания -->
+            <div id="create-homework" class="tab-content active">
+                <div class="card">
+                    <h2>Создать новое задание</h2>
+                    <form id="createHomeworkForm">
+                        <div class="form-row">
                             <div class="form-group">
-                                <label>Ссылка на задание *</label>
-                                <input type="url" id="homeworkUrl" class="form-control" 
-                                       placeholder="https://docs.google.com/document/..." required>
-                                <small class="form-hint">Ссылка на Google Docs, PDF или другой ресурс</small>
+                                <label>Название задания *</label>
+                                <input type="text" id="homeworkTitle" class="form-control" 
+                                       placeholder="Домашнее задание по математике" required>
                             </div>
-
                             <div class="form-group">
-                                <label>Описание (необязательно)</label>
-                                <textarea id="homeworkDescription" class="form-control" rows="3"></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Выберите учеников</label>
-                                <div class="students-selector">
-                                    <div id="studentsContainer" class="students-list loading">
-                                        Загрузка учеников...
-                                    </div>
-                                    <div class="selection-info">
-                                        Выбрано: <span id="selectedCount">0</span> учеников
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">
-                                    <span class="btn-text">Создать задание</span>
-                                    <span class="btn-loading" style="display: none;">Создание...</span>
-                                </button>
-                            </div>
-
-                            <div id="homeworkMessage" class="message" style="display: none;"></div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Мои задания -->
-                <div id="my-homeworks" class="tab-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Созданные задания</h2>
-                            <div class="card-actions">
-                                <button class="btn btn-sm btn-outline" onclick="refreshHomeworks()">
-                                    Обновить
-                                </button>
+                                <label>Предмет *</label>
+                                <select id="homeworkSubject" class="form-control" required>
+                                    <option value="">Выберите предмет</option>
+                                    <option value="Математика">Математика</option>
+                                    <option value="Физика">Физика</option>
+                                    <option value="Информатика">Информатика</option>
+                                    <option value="Русский язык">Русский язык</option>
+                                    <option value="Литература">Литература</option>
+                                    <option value="История">История</option>
+                                    <option value="Обществознание">Обществознание</option>
+                                    <option value="Английский язык">Английский язык</option>
+                                </select>
                             </div>
                         </div>
-                        <div id="homeworksList" class="loading">
-                            Загрузка заданий...
+
+                        <div class="form-group">
+                            <label>Ссылка на задание *</label>
+                            <input type="url" id="homeworkUrl" class="form-control" 
+                                   placeholder="https://docs.google.com/document/..." required>
+                            <small class="form-hint">Ссылка на Google Docs, PDF или другой ресурс с заданием</small>
+                            <div class="url-preview">
+                                <strong>Предпросмотр:</strong> 
+                                <span id="urlPreview">Введите ссылку</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Описание задания (необязательно)</label>
+                            <textarea id="homeworkDescription" class="form-control" rows="3" 
+                                      placeholder="Подробное описание задания..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Выберите учеников</label>
+                            <div class="students-selector">
+                                <div class="selector-actions">
+                                    <button type="button" class="btn btn-sm" onclick="selectAllStudents()">
+                                        Выбрать всех
+                                    </button>
+                                    <button type="button" class="btn btn-sm" onclick="deselectAllStudents()">
+                                        Снять выбор
+                                    </button>
+                                    <button type="button" class="btn btn-sm" onclick="selectByClass()">
+                                        По классу
+                                    </button>
+                                </div>
+                                <div id="studentsContainer" class="students-list">
+                                    <div class="loading">Загрузка учеников...</div>
+                                </div>
+                                <div class="selection-info">
+                                    Выбрано: <span id="selectedCount">0</span> учеников
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <span class="btn-text">📤 Создать задание</span>
+                                <span class="btn-loading" style="display: none;">Создание...</span>
+                            </button>
+                        </div>
+
+                        <div id="homeworkMessage" class="message" style="display: none;"></div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Мои задания -->
+            <div id="my-homeworks" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Созданные задания</h2>
+                        <div class="card-actions">
+                            <button class="btn btn-sm" onclick="refreshHomeworks()">
+                                <span class="btn-icon">🔄</span>
+                                Обновить
+                            </button>
                         </div>
                     </div>
+                    <div id="homeworksList">
+                        <div class="loading">Загрузка заданий...</div>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Добавление оценки -->
-                <div id="add-result" class="tab-content">
-                    <div class="card">
-                        <h2>Добавить результат теста</h2>
-                        <form id="addResultForm">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Ученик *</label>
-                                    <select id="resultStudent" class="form-control" required>
-                                        <option value="">Загрузка...</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Предмет *</label>
-                                    <select id="resultSubject" class="form-control" required>
-                                        <option value="Математика">Математика</option>
-                                        <option value="Физика">Физика</option>
-                                        <option value="Информатика">Информатика</option>
-                                        <option value="Русский язык">Русский язык</option>
-                                        <option value="Литература">Литература</option>
-                                    </select>
-                                </div>
+            <!-- Добавление оценки -->
+            <div id="add-result" class="tab-content">
+                <div class="card">
+                    <h2>Добавить результат теста</h2>
+                    <form id="addResultForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Ученик *</label>
+                                <select id="resultStudent" class="form-control" required>
+                                    <option value="">Загрузка учеников...</option>
+                                </select>
                             </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Название теста *</label>
-                                    <input type="text" id="resultTestName" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Дата</label>
-                                    <input type="date" id="resultDate" class="form-control">
-                                </div>
+                            <div class="form-group">
+                                <label>Предмет *</label>
+                                <select id="resultSubject" class="form-control" required>
+                                    <option value="Математика">Математика</option>
+                                    <option value="Физика">Физика</option>
+                                    <option value="Информатика">Информатика</option>
+                                    <option value="Русский язык">Русский язык</option>
+                                    <option value="Литература">Литература</option>
+                                </select>
                             </div>
+                        </div>
 
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Баллы *</label>
-                                    <input type="number" id="resultScore" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Максимум *</label>
-                                    <input type="number" id="resultMaxScore" class="form-control" value="100" required>
-                                </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Название теста *</label>
+                                <input type="text" id="resultTestName" class="form-control" required
+                                       placeholder="Контрольная работа, Пробный экзамен...">
                             </div>
-
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">
-                                    <span class="btn-text">Сохранить оценку</span>
-                                    <span class="btn-loading" style="display: none;">Сохранение...</span>
-                                </button>
+                            <div class="form-group">
+                                <label>Дата теста</label>
+                                <input type="date" id="resultDate" class="form-control">
                             </div>
+                        </div>
 
-                            <div id="resultMessage" class="message" style="display: none;"></div>
-                        </form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Баллы ученика *</label>
+                                <input type="number" id="resultScore" class="form-control" required
+                                       min="0" max="100" placeholder="0-100">
+                            </div>
+                            <div class="form-group">
+                                <label>Максимальный балл *</label>
+                                <input type="number" id="resultMaxScore" class="form-control" 
+                                       value="100" min="1" required>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <span class="btn-text">💾 Сохранить оценку</span>
+                                <span class="btn-loading" style="display: none;">Сохранение...</span>
+                            </button>
+                        </div>
+
+                        <div id="resultMessage" class="message" style="display: none;"></div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Список учеников -->
+            <div id="students" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Список учеников</h2>
+                        <div class="card-actions">
+                            <button class="btn btn-sm" onclick="refreshStudents()">
+                                <span class="btn-icon">🔄</span>
+                                Обновить
+                            </button>
+                        </div>
+                    </div>
+                    <div id="studentsList">
+                        <div class="loading">Загрузка учеников...</div>
                     </div>
                 </div>
             </div>

@@ -5,6 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LMS - Кабинет ученика</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .welcome-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .welcome-text h2 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+        }
+        .welcome-text p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        .stats-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .quick-action-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e0e6ed;
+        }
+        .quick-action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #2563eb;
+        }
+        .quick-action-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -13,8 +64,8 @@
                 <div class="logo">
                     <div class="logo-icon">📚</div>
                     <div class="logo-text">
-                        <h1>Личный кабинет</h1>
-                        <p>Ученик</p>
+                        <h1>Личный кабинет ученика</h1>
+                        <p>Образовательная платформа</p>
                     </div>
                 </div>
                 <div class="user-menu">
@@ -22,7 +73,10 @@
                         <span id="userName">Загрузка...</span>
                         <span id="userClass" class="user-class"></span>
                     </div>
-                    <button id="logoutBtn" class="btn btn-outline">Выйти</button>
+                    <button id="logoutBtn" class="btn btn-outline">
+                        <span class="btn-icon">🚪</span>
+                        Выйти
+                    </button>
                 </div>
             </div>
         </div>
@@ -30,26 +84,41 @@
 
     <main class="main-content">
         <div class="container">
+            <!-- Приветственный баннер -->
+            <div class="welcome-banner">
+                <div class="welcome-text">
+                    <h2 id="welcomeTitle">Добро пожаловать!</h2>
+                    <p>Здесь вы можете просматривать задания и свои оценки</p>
+                </div>
+                <div class="stats-badge">
+                    <span id="activeAssignments">0</span> активных заданий
+                </div>
+            </div>
+
             <div class="dashboard-grid">
                 <!-- Мои задания -->
                 <div class="dashboard-card">
                     <div class="card-header">
                         <h2><span class="card-icon">📋</span> Мои задания</h2>
-                        <span id="assignmentsCount" class="card-count">0</span>
+                        <div class="card-actions">
+                            <span id="assignmentsCount" class="card-count">0</span>
+                        </div>
                     </div>
-                    <div id="assignmentsList" class="card-body loading">
-                        Загрузка заданий...
+                    <div id="assignmentsList" class="card-body">
+                        <div class="loading">Загрузка заданий...</div>
                     </div>
                 </div>
 
-                <!-- Мои результаты -->
+                <!-- Мои оценки -->
                 <div class="dashboard-card">
                     <div class="card-header">
                         <h2><span class="card-icon">📊</span> Мои оценки</h2>
-                        <span id="resultsCount" class="card-count">0</span>
+                        <div class="card-actions">
+                            <span id="resultsCount" class="card-count">0</span>
+                        </div>
                     </div>
-                    <div id="resultsList" class="card-body loading">
-                        Загрузка результатов...
+                    <div id="resultsList" class="card-body">
+                        <div class="loading">Загрузка оценок...</div>
                     </div>
                 </div>
 
@@ -59,19 +128,27 @@
                         <h2><span class="card-icon">⚡</span> Быстрые действия</h2>
                     </div>
                     <div class="card-body">
-                        <div class="quick-actions">
-                            <button class="quick-action" onclick="refreshData()">
-                                <span class="action-icon">🔄</span>
-                                <span>Обновить данные</span>
-                            </button>
-                            <button class="quick-action" onclick="showAllAssignments()">
-                                <span class="action-icon">📖</span>
-                                <span>Все задания</span>
-                            </button>
-                            <button class="quick-action" onclick="showAllResults()">
-                                <span class="action-icon">📈</span>
-                                <span>Все оценки</span>
-                            </button>
+                        <div class="quick-actions-grid">
+                            <div class="quick-action-card" onclick="refreshData()">
+                                <span class="quick-action-icon">🔄</span>
+                                <strong>Обновить</strong>
+                                <p>Обновить данные</p>
+                            </div>
+                            <div class="quick-action-card" onclick="markAllCompleted()">
+                                <span class="quick-action-icon">✅</span>
+                                <strong>Выполнить все</strong>
+                                <p>Отметить все задания</p>
+                            </div>
+                            <div class="quick-action-card" onclick="showCompleted()">
+                                <span class="quick-action-icon">📖</span>
+                                <strong>Выполненные</strong>
+                                <p>Показать выполненные</p>
+                            </div>
+                            <div class="quick-action-card" onclick="openAllAssignments()">
+                                <span class="quick-action-icon">🔗</span>
+                                <strong>Все задания</strong>
+                                <p>Открыть все ссылки</p>
+                            </div>
                         </div>
                     </div>
                 </div>

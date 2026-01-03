@@ -1,9 +1,9 @@
-// AUTHENTICATION LOGIC
+// AUTHENTICATION LOGIC - ПРОСТЫЕ ПАРОЛИ
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔐 Авторизация загружена');
     
-    // Проверяем существующую сессию
-    checkSession();
+    // Проверяем, авторизован ли пользователь
+    checkExistingSession();
     
     if (!window.supabase) {
         showError('База данных недоступна');
@@ -12,9 +12,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     initRoleTabs();
     initLoginForm();
+    
+    // Заполняем демо данные для удобства тестирования
+    setupDemoData();
 });
 
-function checkSession() {
+function checkExistingSession() {
     const user = localStorage.getItem('user');
     if (user) {
         try {
@@ -36,6 +39,10 @@ function initRoleTabs() {
         tab.addEventListener('click', function() {
             tabs.forEach(t => t.classList.remove('active'));
             this.classList.add('active');
+            
+            // Автоматически заполняем демо данные
+            const role = this.dataset.role;
+            fillDemoData(role);
         });
     });
 }
@@ -52,11 +59,12 @@ function initLoginForm() {
         const role = activeTab ? activeTab.dataset.role : 'student';
         
         if (!email || !password) {
-            showError('Заполните все поля');
+            showError('Введите email и пароль');
             return;
         }
         
-        if (!isValidEmail(email)) {
+        // Простая валидация email
+        if (!email.includes('@')) {
             showError('Введите корректный email');
             return;
         }
@@ -65,48 +73,52 @@ function initLoginForm() {
     });
 }
 
-function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
 async function loginUser(email, password, role) {
     const errorEl = document.getElementById('errorMessage');
-    const submitBtn = form.querySelector('button[type="submit"]');
+    const submitBtn = document.querySelector('#loginForm button[type="submit"]');
     const btnText = submitBtn.querySelector('.btn-text');
     const btnLoading = submitBtn.querySelector('.btn-loading');
     
-    // Скрываем ошибку
+    // Скрываем предыдущие ошибки
     if (errorEl) errorEl.style.display = 'none';
     
-    // Показываем загрузку
+    // Показываем индикатор загрузки
     btnText.style.display = 'none';
     btnLoading.style.display = 'flex';
     submitBtn.disabled = true;
     
     try {
-        // Ищем пользователя в базе
+        console.log(`🔑 Попытка входа: ${email}, роль: ${role}`);
+        
+        // Ищем пользователя по email, паролю и роли
         const { data: users, error } = await window.supabase
             .from('users')
-            .select('id, email, role, full_name, class_name')
+            .select('id, email, password, role, full_name, class_name')
             .eq('email', email)
-            .eq('password', password)
+            .eq('password', password) // Прямое сравнение пароля
             .eq('role', role);
         
         if (error) {
             console.error('Ошибка Supabase:', error);
-            throw new Error('Ошибка подключения к базе');
+            throw new Error('Ошибка подключения к базе данных');
         }
         
+        console.log('Найдены пользователи:', users);
+        
         if (!users || users.length === 0) {
-            throw new Error('Неверный email, пароль или роль');
+            throw new Error('Неверный email или пароль');
         }
         
         const user = users[0];
+        console.log('Успешный вход:', user);
         
-        // Сохраняем данные пользователя
-        localStorage.setItem('user', JSON.stringify(user));
+        // Удаляем пароль из данных пользователя перед сохранением
+        const { password: _, ...userWithoutPassword } = user;
         
-        // Перенаправляем
+        // Сохраняем данные пользователя в localStorage
+        localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+        
+        // Перенаправляем в зависимости от роли
         if (user.role === 'student') {
             window.location.href = 'dashboard-student.html';
         } else {
@@ -115,7 +127,7 @@ async function loginUser(email, password, role) {
         
     } catch (error) {
         console.error('Ошибка входа:', error);
-        showError(error.message || 'Ошибка при входе');
+        showError(error.message || 'Ошибка при входе в систему');
         
     } finally {
         // Восстанавливаем кнопку
@@ -131,9 +143,32 @@ function showError(message) {
         errorEl.textContent = message;
         errorEl.style.display = 'block';
         
+        // Автоматически скрываем через 5 секунд
         setTimeout(() => {
             errorEl.style.display = 'none';
         }, 5000);
+    }
+}
+
+// Функции для демо данных
+function setupDemoData() {
+    // Заполняем данные для активной вкладки
+    const activeTab = document.querySelector('.role-tab.active');
+    if (activeTab) {
+        fillDemoData(activeTab.dataset.role);
+    }
+}
+
+function fillDemoData(role) {
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    
+    if (role === 'teacher') {
+        emailInput.value = 'teacher@school.ru';
+        passwordInput.value = '123456';
+    } else {
+        emailInput.value = 'student1@school.ru';
+        passwordInput.value = '111111';
     }
 }
 
