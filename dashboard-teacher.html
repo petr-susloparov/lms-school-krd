@@ -3,437 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMS - Панель учителя</title>
+    <title>LMS - Панель управления</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f8f9fa;
-            min-height: 100vh;
-        }
-        
-        .header {
-            background: #2563eb;
-            padding: 20px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            text-decoration: none;
-        }
-        
-        .logo-img {
-            width: 50px;
-            height: 50px;
-            background: white;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: #2563eb;
-            font-weight: bold;
-            overflow: hidden;
-        }
-        
-        .logo-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .logo-name {
-            font-size: 20px;
-            font-weight: bold;
-            color: white;
-        }
-        
-        .logo-subtitle {
-            font-size: 14px;
-            color: rgba(255,255,255,0.8);
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        .user-email {
-            color: white;
-            font-size: 14px;
-        }
-        
-        .logout-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        .main-content {
-            padding: 40px 0;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
-        }
-        
-        .card h2 {
-            margin-top: 0;
-            color: #2c3e50;
-            border-bottom: 3px solid #2563eb;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            background: #f8f9fa;
-            padding: 5px;
-            border-radius: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .tab-btn {
-            padding: 12px 25px;
-            background: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s;
-            flex: 1;
-            min-width: 200px;
-            text-align: center;
-        }
-        
-        .tab-btn:hover {
-            background: #f1f2f6;
-        }
-        
-        .tab-btn.active {
-            background: #2563eb;
-            color: white;
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #34495e;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e6ed;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-        }
-        
-        textarea.form-control {
-            min-height: 120px;
-            resize: vertical;
-        }
-        
-        .student-select {
-            margin: 15px 0;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .student-option {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            margin-bottom: 5px;
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .student-option:hover {
-            background: #f1f2f6;
-        }
-        
-        .student-option.selected {
-            background: #2563eb;
-            color: white;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-        
-        .btn-primary:disabled {
-            background: #93c5fd;
-            cursor: not-allowed;
-        }
-        
-        .homeworks-list {
-            display: grid;
-            gap: 20px;
-        }
-        
-        .homework-card {
-            border: 1px solid #e0e6ed;
-            padding: 20px;
-            border-radius: 10px;
-            background: white;
-            transition: all 0.3s;
-        }
-        
-        .homework-card:hover {
-            border-color: #2563eb;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .homework-info h3 {
-            margin: 0 0 8px 0;
-            color: #2c3e50;
-        }
-        
-        .homework-meta {
-            display: flex;
-            gap: 15px;
-            color: #7f8c8d;
-            font-size: 14px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .assigned-to {
-            margin-top: 10px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-        
-        .message {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 8px;
-            display: none;
-        }
-        
-        .message.success {
-            background: #d1f7c4;
-            color: #27ae60;
-            border: 1px solid #a3e9a3;
-        }
-        
-        .message.error {
-            background: #ffeaea;
-            color: #e74c3c;
-            border: 1px solid #ffcccc;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #7f8c8d;
-        }
-        
-        .loading::after {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #2563eb;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 10px;
-        }
-        
-        .score-inputs {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 15px 0;
-        }
-        
-        .score-input {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-        }
-        
-        .score-input label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #64748b;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #7f8c8d;
-        }
-        
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-        
-        @media (max-width: 768px) {
-            .tab-btn {
-                min-width: 100%;
-            }
-            
-            .main-content {
-                padding: 20px 0;
-            }
-            
-            .card {
-                padding: 20px;
-                margin-bottom: 20px;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            
-            .user-info {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .score-inputs {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </head>
 <body>
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <a href="dashboard-teacher.html" class="logo">
-                    <div class="logo-img">
-                        <img src="assets/logo.png" alt="Логотип школы" onerror="this.style.display='none'; this.parentNode.innerHTML='👩‍🏫';">
-                    </div>
+                <div class="logo">
+                    <img src="assets/logo.png" alt="LMS Школа" class="logo-img">
                     <div class="logo-text">
                         <span class="logo-name">LMS Школа</span>
-                        <span class="logo-subtitle">Панель учителя</span>
+                        <span class="logo-subtitle">Панель управления</span>
                     </div>
-                </a>
-                <div class="user-info">
-                    <span class="user-email" id="userEmail"></span>
-                    <button id="logoutBtn" class="logout-btn">Выйти</button>
                 </div>
+                <button id="logoutBtn" class="logout-btn">Выйти</button>
             </div>
         </div>
     </header>
@@ -441,20 +25,18 @@
     <main class="main-content">
         <div class="container">
             <div class="tabs">
-                <button class="tab-btn active" data-tab="add-homework">📝 Создать задание</button>
-                <button class="tab-btn" data-tab="my-homeworks">📚 Мои задания</button>
-                <button class="tab-btn" data-tab="add-test">📊 Добавить результат</button>
+                <button class="tab-btn active" data-tab="add-homework">Создать задание</button>
+                <button class="tab-btn" data-tab="my-homeworks">Мои задания</button>
+                <button class="tab-btn" data-tab="add-test">Добавить результат</button>
             </div>
             
-            <!-- Вкладка: Создать задание -->
             <div id="add-homework" class="tab-content active">
                 <div class="card">
-                    <h2>📝 Создать новое задание</h2>
+                    <h2>Создать новое задание</h2>
                     <form id="addHomeworkForm">
                         <div class="form-group">
                             <label>Название задания</label>
-                            <input type="text" id="title" class="form-control" 
-                                   placeholder="Домашняя работа по математике" required>
+                            <input type="text" id="title" class="form-control" required>
                         </div>
                         
                         <div class="form-group">
@@ -464,11 +46,6 @@
                                 <option value="Математика">Математика</option>
                                 <option value="Физика">Физика</option>
                                 <option value="Информатика">Информатика</option>
-                                <option value="Русский язык">Русский язык</option>
-                                <option value="Литература">Литература</option>
-                                <option value="История">История</option>
-                                <option value="Биология">Биология</option>
-                                <option value="Химия">Химия</option>
                             </select>
                         </div>
                         
@@ -479,14 +56,12 @@
                         
                         <div class="form-group">
                             <label>Описание задания</label>
-                            <textarea id="description" class="form-control" rows="4"
-                                      placeholder="Подробное описание задания..."></textarea>
+                            <textarea id="description" class="form-control" rows="4"></textarea>
                         </div>
                         
                         <div class="form-group">
-                            <label>Ссылка на файл (если есть)</label>
-                            <input type="url" id="fileUrl" class="form-control" 
-                                   placeholder="https://...">
+                            <label>Ссылка на файл</label>
+                            <input type="url" id="fileUrl" class="form-control">
                         </div>
                         
                         <div class="form-group">
@@ -496,29 +71,25 @@
                             </div>
                         </div>
                         
-                        <button type="submit" id="submitHomeworkBtn" class="btn btn-primary">
-                            Создать задание
-                        </button>
+                        <button type="submit" class="btn btn-primary">Создать задание</button>
                         
                         <div id="homeworkMessage" class="message"></div>
                     </form>
                 </div>
             </div>
             
-            <!-- Вкладка: Мои задания -->
             <div id="my-homeworks" class="tab-content">
                 <div class="card">
-                    <h2>📚 Созданные задания</h2>
+                    <h2>Созданные задания</h2>
                     <div id="homeworksList" class="loading">
                         Загрузка заданий...
                     </div>
                 </div>
             </div>
             
-            <!-- Вкладка: Добавить результат -->
             <div id="add-test" class="tab-content">
                 <div class="card">
-                    <h2>📊 Добавить результат теста</h2>
+                    <h2>Добавить результат теста</h2>
                     <form id="addTestForm">
                         <div class="form-group">
                             <label>Выберите ученика</label>
@@ -533,54 +104,37 @@
                                 <option value="Математика">Математика</option>
                                 <option value="Физика">Физика</option>
                                 <option value="Информатика">Информатика</option>
-                                <option value="Русский язык">Русский язык</option>
-                                <option value="Литература">Литература</option>
-                                <option value="История">История</option>
-                                <option value="Биология">Биология</option>
-                                <option value="Химия">Химия</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
                             <label>Название теста</label>
-                            <input type="text" id="testName" class="form-control" 
-                                   placeholder="Пробный экзамен" required>
+                            <input type="text" id="testName" class="form-control" required>
                         </div>
                         
-                        <div class="score-inputs">
-                            <div class="score-input">
-                                <label>Первичный балл</label>
-                                <input type="number" id="primaryScore" class="form-control" 
-                                       min="0" max="100" value="0" required>
-                            </div>
-                            
-                            <div class="score-input">
-                                <label>Макс. первичный балл</label>
-                                <input type="number" id="primaryMaxScore" class="form-control" 
+                        <div class="form-group">
+                            <label>Первичные баллы</label>
+                            <div class="score-inputs">
+                                <input type="number" id="primaryScore" class="form-control score-input" 
+                                       placeholder="80" min="0" required>
+                                <span>из</span>
+                                <input type="number" id="primaryMaxScore" class="form-control score-input" 
                                        value="100" min="1" required>
-                            </div>
-                            
-                            <div class="score-input">
-                                <label>Вторичный балл (опционально)</label>
-                                <input type="number" id="secondaryScore" class="form-control" 
-                                       min="0" placeholder="Оставьте пустым, если нет">
-                            </div>
-                            
-                            <div class="score-input">
-                                <label>Макс. вторичный балл</label>
-                                <input type="number" id="secondaryMaxScore" class="form-control" 
-                                       min="1" placeholder="Оставьте пустым, если нет">
                             </div>
                         </div>
                         
                         <div class="form-group">
-                            <label>Дата теста</label>
-                            <input type="date" id="testDate" class="form-control" required>
+                            <label>Вторичные баллы (опционально)</label>
+                            <div class="score-inputs">
+                                <input type="number" id="secondaryScore" class="form-control score-input" 
+                                       placeholder="20" min="0">
+                                <span>из</span>
+                                <input type="number" id="secondaryMaxScore" class="form-control score-input" 
+                                       placeholder="23" min="1">
+                            </div>
                         </div>
                         
-                        <button type="submit" id="submitTestBtn" class="btn btn-primary">
-                            Сохранить результат
-                        </button>
+                        <button type="submit" class="btn btn-primary">Сохранить результат</button>
                         
                         <div id="testMessage" class="message"></div>
                     </form>
@@ -589,7 +143,6 @@
         </div>
     </main>
 
-    <!-- Подключаем скрипты -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
     <script src="js/teacher-dashboard.js"></script>
