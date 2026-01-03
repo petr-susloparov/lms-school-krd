@@ -1,9 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔐 Система авторизации загружена');
     
-    if (!window.supabase) {
-        showError('Системная ошибка: база данных недоступна');
-        return;
+    // Проверяем авторизацию
+    const user = localStorage.getItem('user');
+    if (user) {
+        const userData = JSON.parse(user);
+        redirectToDashboard(userData.role);
     }
     
     initRoleSelector();
@@ -52,18 +54,23 @@ async function performLogin(email, password, role) {
         submitBtn.textContent = 'Вход...';
         submitBtn.disabled = true;
         
-        // Простая проверка по таблице users
+        // Ищем пользователя с совпадающими email, паролем и ролью
         const { data, error } = await window.supabase
             .from('users')
             .select('id, email, role')
             .eq('email', email)
-            .eq('password', password)  // Пароли хранятся открыто
+            .eq('password', password)
             .eq('role', role)
             .single();
         
         if (error) {
-            console.error('Ошибка авторизации:', error);
-            showError('Неверный email или пароль');
+            console.error('Supabase error:', error);
+            
+            if (error.code === 'PGRST116') {
+                showError('Неверный email или пароль');
+            } else {
+                showError('Ошибка сервера. Попробуйте позже');
+            }
             return;
         }
         
@@ -72,18 +79,18 @@ async function performLogin(email, password, role) {
             return;
         }
         
-        // Сохраняем данные
-        localStorage.setItem('user', JSON.stringify(data));
+        // Сохраняем данные пользователя
+        localStorage.setItem('user', JSON.stringify({
+            id: data.id,
+            email: data.email,
+            role: data.role
+        }));
         
-        // Перенаправляем
-        if (data.role === 'student') {
-            window.location.href = 'dashboard-student.html';
-        } else {
-            window.location.href = 'dashboard-teacher.html';
-        }
+        // Перенаправляем на соответствующую страницу
+        redirectToDashboard(data.role);
         
     } catch (error) {
-        console.error('Ошибка:', error);
+        console.error('Login error:', error);
         showError('Произошла ошибка при входе');
         
     } finally {
@@ -92,15 +99,27 @@ async function performLogin(email, password, role) {
     }
 }
 
+function redirectToDashboard(role) {
+    if (role === 'student') {
+        window.location.href = 'dashboard-student.html';
+    } else if (role === 'teacher') {
+        window.location.href = 'dashboard-teacher.html';
+    }
+}
+
 function showError(message) {
     const errorEl = document.getElementById('errorMessage');
     if (errorEl) {
         errorEl.textContent = message;
         errorEl.style.display = 'block';
-        setTimeout(() => errorEl.style.display = 'none', 5000);
+        
+        setTimeout(() => {
+            errorEl.style.display = 'none';
+        }, 5000);
     }
 }
 
+// Глобальная функция выхода
 window.logout = function() {
     localStorage.removeItem('user');
     window.location.href = 'index.html';

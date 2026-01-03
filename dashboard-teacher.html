@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMS - Панель управления</title>
+    <title>LMS - Панель учителя</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,10 +11,10 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <img src="assets/logo.png" alt="LMS Школа" class="logo-img">
+                    <img src="assets/logo.png" alt="Логотип школы" class="logo-img">
                     <div class="logo-text">
                         <span class="logo-name">LMS Школа</span>
-                        <span class="logo-subtitle">Панель управления</span>
+                        <span class="logo-subtitle">Панель управления учителя</span>
                     </div>
                 </div>
                 <button id="logoutBtn" class="logout-btn">Выйти</button>
@@ -25,50 +25,60 @@
     <main class="main-content">
         <div class="container">
             <div class="tabs">
-                <button class="tab-btn active" data-tab="add-homework">Создать задание</button>
-                <button class="tab-btn" data-tab="my-homeworks">Мои задания</button>
-                <button class="tab-btn" data-tab="add-test">Добавить результат</button>
+                <button class="tab-btn active" data-tab="add-homework">📝 Создать задание</button>
+                <button class="tab-btn" data-tab="my-homeworks">📚 Мои задания</button>
+                <button class="tab-btn" data-tab="add-test">📊 Добавить результат</button>
             </div>
             
+            <!-- Вкладка: Создать задание -->
             <div id="add-homework" class="tab-content active">
                 <div class="card">
                     <h2>Создать новое задание</h2>
                     <form id="addHomeworkForm">
-                        <div class="form-group">
-                            <label>Название задания</label>
-                            <input type="text" id="title" class="form-control" required>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Название задания *</label>
+                                <input type="text" id="title" class="form-control" 
+                                       placeholder="Домашняя работа по математике" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Предмет *</label>
+                                <select id="subject" class="form-control" required>
+                                    <option value="">Выберите предмет</option>
+                                    <option value="Математика">Математика</option>
+                                    <option value="Физика">Физика</option>
+                                    <option value="Информатика">Информатика</option>
+                                    <option value="Русский язык">Русский язык</option>
+                                    <option value="Литература">Литература</option>
+                                </select>
+                            </div>
                         </div>
                         
-                        <div class="form-group">
-                            <label>Предмет</label>
-                            <select id="subject" class="form-control" required>
-                                <option value="">Выберите предмет</option>
-                                <option value="Математика">Математика</option>
-                                <option value="Физика">Физика</option>
-                                <option value="Информатика">Информатика</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Срок сдачи</label>
-                            <input type="date" id="dueDate" class="form-control" required>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Срок сдачи *</label>
+                                <input type="date" id="dueDate" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Выберите ученика *</label>
+                                <div id="studentsList" class="student-select loading">
+                                    Загрузка списка учеников...
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="form-group">
                             <label>Описание задания</label>
-                            <textarea id="description" class="form-control" rows="4"></textarea>
+                            <textarea id="description" class="form-control" rows="4"
+                                      placeholder="Подробное описание задания..."></textarea>
                         </div>
                         
                         <div class="form-group">
-                            <label>Ссылка на файл</label>
-                            <input type="url" id="fileUrl" class="form-control">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Выберите ученика</label>
-                            <div id="studentsList" class="student-select loading">
-                                Загрузка списка учеников...
-                            </div>
+                            <label>Ссылка на файл (если есть)</label>
+                            <input type="url" id="fileUrl" class="form-control" 
+                                   placeholder="https://...">
                         </div>
                         
                         <button type="submit" class="btn btn-primary">Создать задание</button>
@@ -78,6 +88,7 @@
                 </div>
             </div>
             
+            <!-- Вкладка: Мои задания -->
             <div id="my-homeworks" class="tab-content">
                 <div class="card">
                     <h2>Созданные задания</h2>
@@ -87,51 +98,69 @@
                 </div>
             </div>
             
+            <!-- Вкладка: Добавить результат -->
             <div id="add-test" class="tab-content">
                 <div class="card">
                     <h2>Добавить результат теста</h2>
                     <form id="addTestForm">
-                        <div class="form-group">
-                            <label>Выберите ученика</label>
-                            <select id="testStudentSelect" class="form-control" required>
-                                <option value="">Загрузка...</option>
-                            </select>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Выберите ученика *</label>
+                                <select id="testStudentSelect" class="form-control" required>
+                                    <option value="">Загрузка...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Предмет *</label>
+                                <select id="testSubject" class="form-control" required>
+                                    <option value="">Выберите предмет</option>
+                                    <option value="Математика">Математика</option>
+                                    <option value="Физика">Физика</option>
+                                    <option value="Информатика">Информатика</option>
+                                    <option value="Русский язык">Русский язык</option>
+                                    <option value="Литература">Литература</option>
+                                </select>
+                            </div>
                         </div>
                         
                         <div class="form-group">
-                            <label>Предмет</label>
-                            <select id="testSubject" class="form-control" required>
-                                <option value="Математика">Математика</option>
-                                <option value="Физика">Физика</option>
-                                <option value="Информатика">Информатика</option>
-                            </select>
+                            <label>Название теста *</label>
+                            <input type="text" id="testName" class="form-control" 
+                                   placeholder="Пробный экзамен" required>
                         </div>
                         
-                        <div class="form-group">
-                            <label>Название теста</label>
-                            <input type="text" id="testName" class="form-control" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Первичные баллы</label>
-                            <div class="score-inputs">
-                                <input type="number" id="primaryScore" class="form-control score-input" 
-                                       placeholder="80" min="0" required>
-                                <span>из</span>
-                                <input type="number" id="primaryMaxScore" class="form-control score-input" 
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Первичный балл *</label>
+                                <input type="number" id="primaryScore" class="form-control" 
+                                       min="0" required placeholder="Например: 80">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Макс. первичный балл *</label>
+                                <input type="number" id="primaryMaxScore" class="form-control" 
                                        value="100" min="1" required>
                             </div>
                         </div>
                         
-                        <div class="form-group">
-                            <label>Вторичные баллы (опционально)</label>
-                            <div class="score-inputs">
-                                <input type="number" id="secondaryScore" class="form-control score-input" 
-                                       placeholder="20" min="0">
-                                <span>из</span>
-                                <input type="number" id="secondaryMaxScore" class="form-control score-input" 
-                                       placeholder="23" min="1">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Вторичный балл (опционально)</label>
+                                <input type="number" id="secondaryScore" class="form-control" 
+                                       min="0" placeholder="Например: 20">
                             </div>
+                            
+                            <div class="form-group">
+                                <label>Макс. вторичный балл</label>
+                                <input type="number" id="secondaryMaxScore" class="form-control" 
+                                       min="1" placeholder="Например: 23">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Дата теста</label>
+                            <input type="date" id="testDate" class="form-control">
                         </div>
                         
                         <button type="submit" class="btn btn-primary">Сохранить результат</button>

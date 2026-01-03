@@ -1,3 +1,5 @@
+/* Основные стили для всех страниц LMS */
+
 * {
     margin: 0;
     padding: 0;
@@ -5,22 +7,24 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.6;
+    color: #333;
     background: #f8f9fa;
     min-height: 100vh;
-}
-
-/* Шапка */
-.header {
-    background: #2563eb;
-    padding: 15px 0;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+}
+
+/* Шапка */
+.header {
+    background: #2563eb;
+    padding: 20px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .header-inner, .header-content {
@@ -33,11 +37,13 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
+    text-decoration: none;
 }
 
 .logo-img {
+    width: 50px;
     height: 50px;
-    width: auto;
+    border-radius: 8px;
     object-fit: contain;
 }
 
@@ -57,7 +63,22 @@ body {
     color: rgba(255,255,255,0.8);
 }
 
-/* Форма входа */
+.logout-btn {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.logout-btn:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Контейнер входа */
 .login-container {
     max-width: 400px;
     margin: 80px auto;
@@ -101,8 +122,20 @@ body {
     box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
 }
 
+/* Формы */
 .form-group {
     margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
+    margin-bottom: 0;
 }
 
 .form-group label {
@@ -124,125 +157,12 @@ body {
 .form-control:focus {
     outline: none;
     border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
-.score-inputs {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.score-input {
-    width: 100px;
-}
-
-.btn {
-    display: inline-block;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.btn-primary {
-    background: #2563eb;
-    color: white;
-    width: 100%;
-    padding: 14px;
-}
-
-.btn-primary:hover {
-    background: #1d4ed8;
-}
-
-.logout-btn {
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white;
-    padding: 8px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.logout-btn:hover {
-    background: rgba(255,255,255,0.3);
-}
-
-.error-message {
-    color: #e74c3c;
-    margin-top: 15px;
-    padding: 10px;
-    background: #ffeaea;
-    border-radius: 6px;
-    display: none;
-    font-size: 14px;
-}
-
-/* Основной контент */
-.main-content {
-    padding: 40px 0;
-}
-
-.card {
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    margin-bottom: 25px;
-}
-
-.card h2 {
-    margin-top: 0;
-    color: #2c3e50;
-    border-bottom: 3px solid #2563eb;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-}
-
-/* Вкладки */
-.tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 30px;
-    background: #f8f9fa;
-    padding: 5px;
-    border-radius: 10px;
-    flex-wrap: wrap;
-}
-
-.tab-btn {
-    padding: 12px 25px;
-    background: white;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.3s;
-    flex: 1;
-    min-width: 200px;
-    text-align: center;
-}
-
-.tab-btn:hover {
-    background: #f1f2f6;
-}
-
-.tab-btn.active {
-    background: #2563eb;
-    color: white;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
 }
 
 /* Список учеников */
@@ -264,6 +184,7 @@ body {
     background: white;
     border-radius: 6px;
     cursor: pointer;
+    transition: background 0.3s;
 }
 
 .student-option:hover {
@@ -275,24 +196,64 @@ body {
     color: white;
 }
 
-/* Сообщения */
-.message {
-    margin-top: 15px;
-    padding: 12px;
+.student-option input[type="radio"] {
+    margin: 0;
+}
+
+/* Кнопки */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border: none;
     border-radius: 8px;
-    display: none;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
 }
 
-.message.success {
-    background: #d1f7c4;
-    color: #27ae60;
-    border: 1px solid #a3e9a3;
+.btn-primary {
+    background: #2563eb;
+    color: white;
 }
 
-.message.error {
-    background: #ffeaea;
-    color: #e74c3c;
-    border: 1px solid #ffcccc;
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+/* Карточки */
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+}
+
+.card h2 {
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 3px solid #2563eb;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 /* Задания ученика */
@@ -331,6 +292,7 @@ body {
     color: #666;
     margin-bottom: 10px;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .assignment-subject {
@@ -342,6 +304,10 @@ body {
     font-weight: 500;
 }
 
+.assignment-due {
+    font-size: 14px;
+}
+
 .status-badge {
     padding: 4px 12px;
     border-radius: 20px;
@@ -349,23 +315,31 @@ body {
     font-weight: 600;
 }
 
-.status-pending {
-    background: #ffeaa7;
-    color: #d35400;
-}
-
-.status-completed {
+.assignment-item.completed .status-badge {
     background: #d1f7c4;
     color: #27ae60;
 }
 
-.status-late {
+.assignment-item.late .status-badge {
     background: #ffcccc;
     color: #c0392b;
 }
 
+.assignment-item:not(.completed):not(.late) .status-badge {
+    background: #ffeaa7;
+    color: #d35400;
+}
+
+.assignment-description {
+    margin: 10px 0;
+    color: #555;
+    line-height: 1.5;
+}
+
 .file-link {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     background: #2563eb;
     color: white;
     padding: 8px 16px;
@@ -373,9 +347,17 @@ body {
     text-decoration: none;
     margin-top: 12px;
     font-size: 14px;
+    transition: background 0.3s;
+}
+
+.file-link:hover {
+    background: #1d4ed8;
 }
 
 .complete-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     background: #27ae60;
     color: white;
     border: none;
@@ -384,12 +366,17 @@ body {
     cursor: pointer;
     margin-top: 12px;
     font-size: 14px;
+    transition: background 0.3s;
+}
+
+.complete-btn:hover {
+    background: #219653;
 }
 
 /* Результаты тестов */
 .results-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
 }
 
@@ -399,12 +386,23 @@ body {
     border-radius: 8px;
     text-align: center;
     border: 1px solid #e0e6ed;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.result-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .result-score {
-    font-size: 24px;
+    font-size: 32px;
     font-weight: bold;
-    color: #2563eb;
+    margin-bottom: 5px;
+}
+
+.secondary-score {
+    font-size: 18px;
+    color: #7f8c8d;
     margin-bottom: 10px;
 }
 
@@ -425,7 +423,50 @@ body {
     color: #95a5a6;
 }
 
-/* Домашние задания учителя */
+/* Вкладки учителя */
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    background: #f8f9fa;
+    padding: 5px;
+    border-radius: 10px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 12px 25px;
+    background: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s;
+    flex: 1;
+    min-width: 200px;
+    text-align: center;
+}
+
+.tab-btn:hover {
+    background: #f1f2f6;
+}
+
+.tab-btn.active {
+    background: #2563eb;
+    color: white;
+    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Задания учителя */
 .homeworks-list {
     display: grid;
     gap: 20px;
@@ -436,10 +477,19 @@ body {
     padding: 20px;
     border-radius: 10px;
     background: white;
+    transition: border-color 0.3s;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
 }
 
 .homework-card:hover {
     border-color: #2563eb;
+}
+
+.homework-info {
+    flex: 1;
 }
 
 .homework-info h3 {
@@ -456,6 +506,25 @@ body {
     flex-wrap: wrap;
 }
 
+.homework-subject {
+    background: #2563eb;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.homework-due {
+    font-size: 14px;
+}
+
+.homework-description {
+    margin: 10px 0;
+    color: #555;
+    line-height: 1.5;
+}
+
 .assigned-to {
     margin-top: 10px;
     padding: 10px;
@@ -464,17 +533,75 @@ body {
     font-size: 14px;
 }
 
-.btn-danger {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 8px 16px;
+.homework-actions {
+    display: flex;
+    align-items: flex-start;
+}
+
+/* Сообщения */
+.message {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    display: none;
+}
+
+.message.success {
+    background: #d1f7c4;
+    color: #27ae60;
+    border: 1px solid #a3e9a3;
+}
+
+.message.error {
+    background: #ffeaea;
+    color: #e74c3c;
+    border: 1px solid #ffcccc;
+}
+
+.error-message {
+    color: #e74c3c;
+    margin-top: 15px;
+    padding: 10px;
+    background: #ffeaea;
     border-radius: 6px;
-    cursor: pointer;
+    display: none;
     font-size: 14px;
 }
 
-/* Состояния загрузки */
+.info-box {
+    margin-top: 25px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.info-box strong {
+    color: #2c3e50;
+}
+
+/* Пустые состояния */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #7f8c8d;
+}
+
+.empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state-hint {
+    font-size: 14px;
+    margin-top: 10px;
+    color: #95a5a6;
+}
+
+/* Загрузка */
 .loading {
     text-align: center;
     padding: 40px;
@@ -493,43 +620,89 @@ body {
     margin-left: 10px;
 }
 
-.empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: #7f8c8d;
-}
-
-.empty-state-icon {
-    font-size: 48px;
-    margin-bottom: 20px;
-    opacity: 0.5;
-}
-
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
+/* Анимации */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
     .login-container {
-        margin: 40px 20px;
+        margin: 40px auto;
         padding: 30px 20px;
     }
     
-    .main-content {
-        padding: 20px 0;
+    .logo-name {
+        font-size: 18px;
+    }
+    
+    .logo-img {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 15px;
     }
     
     .tab-btn {
         min-width: 100%;
     }
     
-    .card {
-        padding: 20px;
-    }
-    
     .results-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .homework-card {
+        flex-direction: column;
+    }
+    
+    .homework-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 10px;
+    }
+    
+    .assignment-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .tabs {
+        flex-direction: column;
     }
 }

@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🎓 Загружен личный кабинет ученика');
+    
     const user = await checkAuthorization();
     if (!user) return;
     
@@ -14,39 +16,40 @@ async function checkAuthorization() {
         return null;
     }
     
-    let user;
     try {
-        user = JSON.parse(userJson);
+        const user = JSON.parse(userJson);
+        
+        if (user.role !== 'student') {
+            alert('Эта страница доступна только для учеников.');
+            window.location.href = 'dashboard-teacher.html';
+            return null;
+        }
+        
+        return user;
+        
     } catch (e) {
         localStorage.removeItem('user');
         window.location.href = 'index.html';
         return null;
     }
-    
-    if (user.role !== 'student') {
-        window.location.href = 'dashboard-teacher.html';
-        return null;
-    }
-    
-    return user;
 }
 
 function setupLogoutButton() {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', function() {
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
-        });
+        logoutBtn.addEventListener('click', window.logout);
     }
 }
 
 async function loadStudentData(user) {
     try {
-        await loadMyAssignments(user);
-        await loadMyResults(user);
+        await Promise.all([
+            loadMyAssignments(user),
+            loadMyResults(user)
+        ]);
     } catch (error) {
         console.error('Ошибка загрузки данных:', error);
+        showNotification('Не удалось загрузить данные', 'error');
     }
 }
 
@@ -69,7 +72,8 @@ async function loadMyAssignments(user) {
                 )
             `)
             .eq('student_id', user.id)
-            .order('is_completed', { ascending: true });
+            .order('is_completed', { ascending: true })
+            .order('homeworks(due_date)', { ascending: true });
         
         if (error) throw error;
         
@@ -97,19 +101,11 @@ async function loadMyAssignments(user) {
             let statusClass = assignment.is_completed ? 'completed' : 
                             daysDiff < 0 ? 'late' : '';
             
-            let statusText = '';
-            let statusColor = '';
-            
-            if (assignment.is_completed) {
-                statusText = 'Выполнено';
-                statusColor = 'status-completed';
-            } else if (daysDiff < 0) {
-                statusText = 'Просрочено';
-                statusColor = 'status-late';
-            } else {
-                statusText = `До ${dueDate.toLocaleDateString('ru-RU')}`;
-                statusColor = 'status-pending';
-            }
+            let statusText = assignment.is_completed ? 'Выполнено' : 
+                           daysDiff < 0 ? 'Просрочено' :
+                           daysDiff === 0 ? 'Сегодня' :
+                           daysDiff <= 3 ? `Осталось ${daysDiff} дня` :
+                           `Осталось ${daysDiff} дней`;
             
             const assignmentItem = document.createElement('div');
             assignmentItem.className = `assignment-item ${statusClass}`;
@@ -117,9 +113,10 @@ async function loadMyAssignments(user) {
                 <div class="assignment-title">${hw.title}</div>
                 <div class="assignment-meta">
                     <span class="assignment-subject">${hw.subject}</span>
-                    <span class="status-badge ${statusColor}">${statusText}</span>
+                    <span class="assignment-due">Срок: ${dueDate.toLocaleDateString('ru-RU')}</span>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
                 </div>
-                ${hw.description ? `<p style="margin: 10px 0; color: #555;">${hw.description}</p>` : ''}
+                ${hw.description ? `<p class="assignment-description">${hw.description}</p>` : ''}
                 ${hw.file_url ? `
                     <a href="${hw.file_url}" class="file-link" target="_blank" rel="noopener">
                         📎 Скачать задание
@@ -127,7 +124,8 @@ async function loadMyAssignments(user) {
                 ` : ''}
                 
                 ${!assignment.is_completed ? `
-                    <button onclick="markAsCompleted(${assignment.id})" class="complete-btn">
+                    <button onclick="markAsCompleted('${assignment.id}')" 
+                            class="complete-btn">
                         ✅ Отметить как выполненное
                     </button>
                 ` : ''}
@@ -139,6 +137,7 @@ async function loadMyAssignments(user) {
         container.appendChild(assignmentsList);
         
     } catch (error) {
+        console.error('Ошибка загрузки заданий:', error);
         container.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">⚠️</div>
@@ -156,7 +155,8 @@ async function loadMyResults(user) {
             .from('test_results')
             .select('*')
             .eq('student_id', user.id)
-            .order('test_date', { ascending: false });
+            .order('test_date', { ascending: false })
+            .limit(6);
         
         if (error) throw error;
         
@@ -176,11 +176,13 @@ async function loadMyResults(user) {
         resultsGrid.className = 'results-grid';
         
         results.forEach(result => {
-            const primaryPercentage = Math.round((result.primary_score / result.primary_max_score) * 100);
-            let color = '#2563eb';
+            const primaryPercent = Math.round((result.primary_score / result.primary_max_score) * 100);
+            const secondaryPercent = result.secondary_score && result.secondary_max_score ? 
+                Math.round((result.secondary_score / result.secondary_max_score) * 100) : null;
             
-            if (primaryPercentage >= 80) color = '#27ae60';
-            else if (primaryPercentage >= 60) color = '#f39c12';
+            let color = '#2563eb';
+            if (primaryPercent >= 80) color = '#27ae60';
+            else if (primaryPercent >= 60) color = '#f39c12';
             else color = '#e74c3c';
             
             const resultCard = document.createElement('div');
@@ -188,8 +190,12 @@ async function loadMyResults(user) {
             resultCard.innerHTML = `
                 <div class="result-score" style="color: ${color};">
                     ${result.primary_score}/${result.primary_max_score}
-                    ${result.secondary_score ? ` + ${result.secondary_score}/${result.secondary_max_score}` : ''}
                 </div>
+                ${secondaryPercent !== null ? `
+                    <div class="secondary-score">
+                        ${result.secondary_score}/${result.secondary_max_score}
+                    </div>
+                ` : ''}
                 <div class="result-subject">${result.subject}</div>
                 <div class="result-name">${result.test_name}</div>
                 <div class="result-date">${new Date(result.test_date).toLocaleDateString('ru-RU')}</div>
@@ -201,6 +207,7 @@ async function loadMyResults(user) {
         container.appendChild(resultsGrid);
         
     } catch (error) {
+        console.error('Ошибка загрузки результатов:', error);
         container.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">⚠️</div>
@@ -208,6 +215,30 @@ async function loadMyResults(user) {
             </div>
         `;
     }
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        background: ${type === 'error' ? '#e74c3c' : '#27ae60'};
+        color: white;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
 window.markAsCompleted = async function(assignmentId) {
@@ -224,7 +255,7 @@ window.markAsCompleted = async function(assignmentId) {
         
         if (error) throw error;
         
-        alert('Задание отмечено как выполненное!');
+        showNotification('Задание отмечено как выполненное!', 'success');
         
         const user = JSON.parse(localStorage.getItem('user'));
         if (user) {
@@ -233,6 +264,6 @@ window.markAsCompleted = async function(assignmentId) {
         
     } catch (error) {
         console.error('Ошибка:', error);
-        alert('Ошибка при обновлении задания');
+        showNotification('Ошибка при обновлении задания', 'error');
     }
 };

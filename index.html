@@ -11,7 +11,7 @@
         <div class="container">
             <div class="header-inner">
                 <div class="logo">
-                    <img src="assets/logo.png" alt="LMS Школа" class="logo-img">
+                    <img src="assets/logo.png" alt="Логотип школы" class="logo-img">
                     <div class="logo-text">
                         <span class="logo-name">LMS Школа</span>
                         <span class="logo-subtitle">Образовательная платформа</span>
@@ -33,20 +33,29 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label for="email">Email адрес</label>
-                    <input type="email" id="email" class="form-control" placeholder="example@school.ru" required>
+                    <input type="email" id="email" class="form-control" 
+                           placeholder="example@school.ru" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Пароль</label>
-                    <input type="password" id="password" class="form-control" placeholder="Введите пароль" required>
+                    <input type="password" id="password" class="form-control" 
+                           placeholder="Введите пароль" required>
                 </div>
                 
                 <button type="submit" class="btn btn-primary">Войти в систему</button>
                 
                 <div id="errorMessage" class="error-message">
-                    Неверный email или пароль
+                    Ошибка авторизации
                 </div>
             </form>
+            
+            <div class="info-box">
+                <strong>Для входа используйте:</strong><br>
+                • Email: teacher@school.ru / Пароль: 456 (учитель)<br>
+                • Email: student1@school.ru / Пароль: 123 (ученик)<br>
+                • Выберите правильную роль перед входом
+            </div>
         </div>
     </div>
 

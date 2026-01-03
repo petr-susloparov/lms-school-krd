@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function() {
+    console.log('👨‍🏫 Загружена панель учителя');
+    
     const user = await checkAuthorization();
     if (!user) return;
     
@@ -16,43 +18,40 @@ async function checkAuthorization() {
         return null;
     }
     
-    let user;
     try {
-        user = JSON.parse(userJson);
+        const user = JSON.parse(userJson);
+        
+        if (user.role !== 'teacher') {
+            alert('Эта страница доступна только для учителей.');
+            window.location.href = 'dashboard-student.html';
+            return null;
+        }
+        
+        return user;
+        
     } catch (e) {
         localStorage.removeItem('user');
         window.location.href = 'index.html';
         return null;
     }
-    
-    if (user.role !== 'teacher') {
-        window.location.href = 'dashboard-student.html';
-        return null;
-    }
-    
-    return user;
 }
 
 function setupLogoutButton() {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', function() {
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
-        });
+        logoutBtn.addEventListener('click', window.logout);
     }
 }
 
 function setupTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
     
     tabBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             const tabId = this.dataset.tab;
             
             tabBtns.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
             this.classList.add('active');
             document.getElementById(tabId).classList.add('active');
@@ -62,12 +61,14 @@ function setupTabs() {
 
 async function loadInitialData(user) {
     try {
-        await loadStudentsForHomework();
-        await loadStudentsForTest();
-        await loadTeacherHomeworks(user);
-        
+        await Promise.all([
+            loadStudentsForHomework(),
+            loadStudentsForTest(),
+            loadTeacherHomeworks(user)
+        ]);
     } catch (error) {
         console.error('Ошибка загрузки данных:', error);
+        showMessage('Не удалось загрузить данные', 'error');
     }
 }
 
@@ -90,18 +91,16 @@ async function loadStudentsForHomework() {
             return;
         }
         
-        let selectedStudentId = null;
-        
         students.forEach(student => {
             const studentOption = document.createElement('div');
             studentOption.className = 'student-option';
             studentOption.innerHTML = `
-                <input type="radio" name="student" value="${student.id}" id="student_${student.id}">
+                <input type="radio" name="student" value="${student.id}" 
+                       id="student_${student.id}">
                 <label for="student_${student.id}">${student.email}</label>
             `;
             
             studentOption.addEventListener('click', function() {
-                selectedStudentId = student.id;
                 document.querySelectorAll('.student-option').forEach(opt => {
                     opt.classList.remove('selected');
                 });
@@ -172,8 +171,9 @@ async function loadTeacherHomeworks(user) {
         if (!homeworks || homeworks.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
-                    <div style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;">📭</div>
+                    <div class="empty-state-icon">📭</div>
                     <p>Вы еще не создали заданий</p>
+                    <p class="empty-state-hint">Создайте первое задание во вкладке "Создать задание"</p>
                 </div>
             `;
             return;
@@ -192,18 +192,22 @@ async function loadTeacherHomeworks(user) {
                 <div class="homework-info">
                     <h3>${hw.title}</h3>
                     <div class="homework-meta">
-                        <span>${hw.subject}</span>
-                        <span>Срок: ${dueDate.toLocaleDateString('ru-RU')}</span>
+                        <span class="homework-subject">${hw.subject}</span>
+                        <span class="homework-due">Срок: ${dueDate.toLocaleDateString('ru-RU')}</span>
                     </div>
-                    ${hw.description ? `<p style="margin: 10px 0; color: #555;">${hw.description}</p>` : ''}
+                    ${hw.description ? `<p class="homework-description">${hw.description}</p>` : ''}
                     <div class="assigned-to">
                         <strong>Назначено:</strong> ${assignedStudent}
                     </div>
-                    ${hw.file_url ? `<a href="${hw.file_url}" target="_blank" style="color: #2563eb; text-decoration: none;">📎 Ссылка на файл</a>` : ''}
+                    ${hw.file_url ? `
+                        <a href="${hw.file_url}" target="_blank" class="file-link">
+                            📎 Ссылка на файл
+                        </a>
+                    ` : ''}
                 </div>
-                <div style="margin-top: 15px;">
-                    <button onclick="deleteHomework(${hw.id})" class="btn-danger">
-                        Удалить
+                <div class="homework-actions">
+                    <button onclick="deleteHomework('${hw.id}')" class="btn-danger">
+                        🗑️ Удалить
                     </button>
                 </div>
             `;
@@ -214,9 +218,10 @@ async function loadTeacherHomeworks(user) {
         container.appendChild(homeworksList);
         
     } catch (error) {
+        console.error('Ошибка загрузки заданий:', error);
         container.innerHTML = `
             <div class="empty-state">
-                <div style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;">⚠️</div>
+                <div class="empty-state-icon">⚠️</div>
                 <p>Не удалось загрузить задания</p>
             </div>
         `;
@@ -243,6 +248,11 @@ function setupForms(user) {
     // Форма добавления результатов
     const testForm = document.getElementById('addTestForm');
     if (testForm) {
+        const testDateInput = document.getElementById('testDate');
+        if (testDateInput) {
+            testDateInput.value = new Date().toISOString().split('T')[0];
+        }
+        
         testForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             await createTestResult();
@@ -292,7 +302,7 @@ async function createHomework(user) {
         // Назначаем задание ученику
         const assignmentData = {
             homework_id: homework.id,
-            student_id: parseInt(selectedStudent.value)
+            student_id: selectedStudent.value
         };
         
         const { error: assignmentError } = await window.supabase
@@ -302,9 +312,10 @@ async function createHomework(user) {
         if (assignmentError) throw assignmentError;
         
         // Успех
-        showMessage('✅ Задание успешно создано и назначено!', 'success', messageEl);
+        showMessage('✅ Задание успешно создано и назначено ученику!', 'success', messageEl);
         form.reset();
         
+        // Сбрасываем дату на сегодня
         const dueDateInput = document.getElementById('dueDate');
         if (dueDateInput) {
             const today = new Date().toISOString().split('T')[0];
@@ -314,6 +325,7 @@ async function createHomework(user) {
         // Обновляем список заданий
         await loadTeacherHomeworks(user);
         
+        // Переключаем на вкладку с заданиями через 2 секунды
         setTimeout(() => {
             document.querySelector('[data-tab="my-homeworks"]').click();
         }, 2000);
@@ -332,13 +344,12 @@ async function createHomework(user) {
 async function createTestResult() {
     const form = document.getElementById('addTestForm');
     const messageEl = document.getElementById('testMessage');
+    
     const studentId = document.getElementById('testStudentSelect').value;
     const primaryScore = parseInt(document.getElementById('primaryScore').value);
     const primaryMaxScore = parseInt(document.getElementById('primaryMaxScore').value);
-    const secondaryScore = document.getElementById('secondaryScore').value ? 
-        parseInt(document.getElementById('secondaryScore').value) : null;
-    const secondaryMaxScore = document.getElementById('secondaryMaxScore').value ? 
-        parseInt(document.getElementById('secondaryMaxScore').value) : null;
+    const secondaryScore = document.getElementById('secondaryScore').value;
+    const secondaryMaxScore = document.getElementById('secondaryMaxScore').value;
     
     if (!studentId) {
         showMessage('Выберите ученика', 'error', messageEl);
@@ -346,29 +357,40 @@ async function createTestResult() {
     }
     
     if (isNaN(primaryScore) || primaryScore < 0) {
-        showMessage('Введите корректные первичные баллы', 'error', messageEl);
+        showMessage('Введите корректный первичный балл', 'error', messageEl);
         return;
     }
     
     if (primaryScore > primaryMaxScore) {
-        showMessage('Первичные баллы не могут превышать максимальный балл', 'error', messageEl);
+        showMessage('Первичный балл не может превышать максимальный', 'error', messageEl);
         return;
     }
     
-    if (secondaryScore !== null && secondaryScore > secondaryMaxScore) {
-        showMessage('Вторичные баллы не могут превышать максимальный балл', 'error', messageEl);
+    // Проверяем вторичные баллы
+    if (secondaryScore && !secondaryMaxScore) {
+        showMessage('Введите максимальный вторичный балл', 'error', messageEl);
+        return;
+    }
+    
+    if (secondaryScore && secondaryMaxScore && parseInt(secondaryScore) > parseInt(secondaryMaxScore)) {
+        showMessage('Вторичный балл не может превышать максимальный', 'error', messageEl);
         return;
     }
     
     const testData = {
-        student_id: parseInt(studentId),
+        student_id: studentId,
         subject: document.getElementById('testSubject').value,
         test_name: document.getElementById('testName').value.trim(),
         primary_score: primaryScore,
         primary_max_score: primaryMaxScore,
-        secondary_score: secondaryScore,
-        secondary_max_score: secondaryMaxScore
+        test_date: document.getElementById('testDate').value || new Date().toISOString().split('T')[0]
     };
+    
+    // Добавляем вторичные баллы, если они указаны
+    if (secondaryScore && secondaryMaxScore) {
+        testData.secondary_score = parseInt(secondaryScore);
+        testData.secondary_max_score = parseInt(secondaryMaxScore);
+    }
     
     try {
         const submitBtn = form.querySelector('button[type="submit"]');
@@ -385,10 +407,11 @@ async function createTestResult() {
         showMessage('✅ Результат теста успешно сохранен!', 'success', messageEl);
         
         // Очищаем форму
-        document.getElementById('testName').value = '';
-        document.getElementById('primaryScore').value = '';
-        document.getElementById('secondaryScore').value = '';
-        document.getElementById('secondaryMaxScore').value = '';
+        form.reset();
+        
+        // Сбрасываем значения по умолчанию
+        document.getElementById('primaryMaxScore').value = '100';
+        document.getElementById('testDate').value = new Date().toISOString().split('T')[0];
         
     } catch (error) {
         console.error('Ошибка сохранения результата:', error);
@@ -413,6 +436,7 @@ function showMessage(text, type, element) {
     }, 5000);
 }
 
+// Глобальные функции
 window.deleteHomework = async function(homeworkId) {
     if (!confirm('Вы уверены, что хотите удалить это задание?')) {
         return;

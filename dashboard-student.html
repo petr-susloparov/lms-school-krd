@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMS - Личный кабинет</title>
+    <title>LMS - Личный кабинет ученика</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,10 +11,10 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <img src="assets/logo.png" alt="LMS Школа" class="logo-img">
+                    <img src="assets/logo.png" alt="Логотип школы" class="logo-img">
                     <div class="logo-text">
                         <span class="logo-name">LMS Школа</span>
-                        <span class="logo-subtitle">Личный кабинет</span>
+                        <span class="logo-subtitle">Личный кабинет ученика</span>
                     </div>
                 </div>
                 <button id="logoutBtn" class="logout-btn">Выйти</button>
@@ -24,15 +24,17 @@
 
     <main class="main-content">
         <div class="container">
+            <!-- Мои задания -->
             <div class="card">
-                <h2>Мои задания</h2>
+                <h2>📋 Мои задания</h2>
                 <div id="myAssignments" class="loading">
                     Загрузка заданий...
                 </div>
             </div>
             
+            <!-- Мои результаты -->
             <div class="card">
-                <h2>Мои результаты</h2>
+                <h2>📊 Мои результаты</h2>
                 <div id="myResults" class="loading">
                     Загрузка результатов...
                 </div>
