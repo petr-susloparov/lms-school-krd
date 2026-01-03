@@ -1,11 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔐 Система авторизации загружена');
     
-    // Проверяем авторизацию
+    // Проверяем авторизацию и редиректим если уже авторизован
     const user = localStorage.getItem('user');
     if (user) {
-        const userData = JSON.parse(user);
-        redirectToDashboard(userData.role);
+        try {
+            const userData = JSON.parse(user);
+            redirectToDashboard(userData.role);
+        } catch (e) {
+            localStorage.removeItem('user');
+        }
     }
     
     initRoleSelector();
@@ -25,6 +29,8 @@ function initRoleSelector() {
 
 function initLoginForm() {
     const loginForm = document.getElementById('loginForm');
+    
+    if (!loginForm) return;
     
     loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -47,14 +53,15 @@ async function performLogin(email, password, role) {
     const errorEl = document.getElementById('errorMessage');
     const submitBtn = document.querySelector('#loginForm button[type="submit"]');
     
-    errorEl.style.display = 'none';
+    if (errorEl) errorEl.style.display = 'none';
+    
     const originalText = submitBtn.textContent;
     
     try {
         submitBtn.textContent = 'Вход...';
         submitBtn.disabled = true;
         
-        // Ищем пользователя с совпадающими email, паролем и ролью
+        // Ищем пользователя
         const { data, error } = await window.supabase
             .from('users')
             .select('id, email, role')
@@ -79,14 +86,14 @@ async function performLogin(email, password, role) {
             return;
         }
         
-        // Сохраняем данные пользователя
+        // Сохраняем данные
         localStorage.setItem('user', JSON.stringify({
             id: data.id,
             email: data.email,
             role: data.role
         }));
         
-        // Перенаправляем на соответствующую страницу
+        // Перенаправляем
         redirectToDashboard(data.role);
         
     } catch (error) {
@@ -119,8 +126,9 @@ function showError(message) {
     }
 }
 
-// Глобальная функция выхода
+// Глобальная функция выхода - ИСПРАВЛЕНА
 window.logout = function() {
+    console.log('Выход из системы...');
     localStorage.removeItem('user');
     window.location.href = 'index.html';
 };

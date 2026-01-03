@@ -17,7 +17,7 @@
                         <span class="logo-subtitle">Панель управления учителя</span>
                     </div>
                 </div>
-                <button id="logoutBtn" class="logout-btn">Выйти</button>
+                <button onclick="window.logout()" class="logout-btn">Выйти</button>
             </div>
         </div>
     </header>
@@ -26,7 +26,6 @@
         <div class="container">
             <div class="tabs">
                 <button class="tab-btn active" data-tab="add-homework">📝 Создать задание</button>
-                <button class="tab-btn" data-tab="my-homeworks">📚 Мои задания</button>
                 <button class="tab-btn" data-tab="add-test">📊 Добавить результат</button>
             </div>
             
@@ -55,20 +54,6 @@
                             </div>
                         </div>
                         
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Срок сдачи *</label>
-                                <input type="date" id="dueDate" class="form-control" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Выберите ученика *</label>
-                                <div id="studentsList" class="student-select loading">
-                                    Загрузка списка учеников...
-                                </div>
-                            </div>
-                        </div>
-                        
                         <div class="form-group">
                             <label>Описание задания</label>
                             <textarea id="description" class="form-control" rows="4"
@@ -81,20 +66,17 @@
                                    placeholder="https://...">
                         </div>
                         
+                        <div class="form-group">
+                            <label>Выберите ученика *</label>
+                            <div id="studentsList">
+                                <!-- Список учеников загрузится через JS -->
+                            </div>
+                        </div>
+                        
                         <button type="submit" class="btn btn-primary">Создать задание</button>
                         
                         <div id="homeworkMessage" class="message"></div>
                     </form>
-                </div>
-            </div>
-            
-            <!-- Вкладка: Мои задания -->
-            <div id="my-homeworks" class="tab-content">
-                <div class="card">
-                    <h2>Созданные задания</h2>
-                    <div id="homeworksList" class="loading">
-                        Загрузка заданий...
-                    </div>
                 </div>
             </div>
             

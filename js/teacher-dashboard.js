@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     const user = await checkAuthorization();
     if (!user) return;
     
-    setupLogoutButton();
     setupTabs();
     await loadInitialData(user);
     setupForms(user);
@@ -36,13 +35,6 @@ async function checkAuthorization() {
     }
 }
 
-function setupLogoutButton() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', window.logout);
-    }
-}
-
 function setupTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     
@@ -63,8 +55,7 @@ async function loadInitialData(user) {
     try {
         await Promise.all([
             loadStudentsForHomework(),
-            loadStudentsForTest(),
-            loadTeacherHomeworks(user)
+            loadStudentsForTest()
         ]);
     } catch (error) {
         console.error('Ошибка загрузки данных:', error);
@@ -78,9 +69,10 @@ async function loadStudentsForHomework() {
     try {
         const { data: students, error } = await window.supabase
             .from('users')
-            .select('id, email')
+            .select('id, email, full_name, class')
             .eq('role', 'student')
-            .order('email');
+            .order('class')
+            .order('full_name');
         
         if (error) throw error;
         
@@ -91,25 +83,54 @@ async function loadStudentsForHomework() {
             return;
         }
         
+        // Группируем учеников по классам
+        const studentsByClass = {};
         students.forEach(student => {
-            const studentOption = document.createElement('div');
-            studentOption.className = 'student-option';
-            studentOption.innerHTML = `
-                <input type="radio" name="student" value="${student.id}" 
-                       id="student_${student.id}">
-                <label for="student_${student.id}">${student.email}</label>
-            `;
-            
-            studentOption.addEventListener('click', function() {
-                document.querySelectorAll('.student-option').forEach(opt => {
-                    opt.classList.remove('selected');
-                });
-                this.classList.add('selected');
-                this.querySelector('input').checked = true;
-            });
-            
-            container.appendChild(studentOption);
+            const className = student.class || 'Без класса';
+            if (!studentsByClass[className]) {
+                studentsByClass[className] = [];
+            }
+            studentsByClass[className].push(student);
         });
+        
+        // Создаем список с группами
+        for (const className in studentsByClass) {
+            const classHeader = document.createElement('div');
+            classHeader.className = 'class-header';
+            classHeader.textContent = `Класс: ${className}`;
+            classHeader.style.cssText = `
+                font-weight: bold;
+                color: #2563eb;
+                margin: 15px 0 10px 0;
+                padding: 5px 10px;
+                background: #f0f7ff;
+                border-radius: 5px;
+            `;
+            container.appendChild(classHeader);
+            
+            studentsByClass[className].forEach(student => {
+                const studentOption = document.createElement('div');
+                studentOption.className = 'student-option';
+                studentOption.innerHTML = `
+                    <input type="radio" name="student" value="${student.id}" 
+                           id="student_${student.id}">
+                    <label for="student_${student.id}">
+                        <strong>${student.full_name || student.email}</strong><br>
+                        <small style="color: #666;">${student.email}</small>
+                    </label>
+                `;
+                
+                studentOption.addEventListener('click', function() {
+                    document.querySelectorAll('.student-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    this.querySelector('input').checked = true;
+                });
+                
+                container.appendChild(studentOption);
+            });
+        }
         
     } catch (error) {
         container.innerHTML = '<div class="error">Не удалось загрузить учеников</div>';
@@ -122,109 +143,41 @@ async function loadStudentsForTest() {
     try {
         const { data: students, error } = await window.supabase
             .from('users')
-            .select('id, email')
+            .select('id, email, full_name, class')
             .eq('role', 'student')
-            .order('email');
+            .order('class')
+            .order('full_name');
         
         if (error) throw error;
         
         select.innerHTML = '<option value="">Выберите ученика...</option>';
         
+        // Группируем по классам в выпадающем списке
+        const studentsByClass = {};
         students.forEach(student => {
-            const option = document.createElement('option');
-            option.value = student.id;
-            option.textContent = student.email;
-            select.appendChild(option);
+            const className = student.class || 'Без класса';
+            if (!studentsByClass[className]) {
+                studentsByClass[className] = [];
+            }
+            studentsByClass[className].push(student);
         });
+        
+        for (const className in studentsByClass) {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = `Класс ${className}`;
+            
+            studentsByClass[className].forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = `${student.full_name || student.email} (${student.email})`;
+                optgroup.appendChild(option);
+            });
+            
+            select.appendChild(optgroup);
+        }
         
     } catch (error) {
         select.innerHTML = '<option value="">Ошибка загрузки</option>';
-    }
-}
-
-async function loadTeacherHomeworks(user) {
-    const container = document.getElementById('homeworksList');
-    
-    try {
-        const { data: homeworks, error } = await window.supabase
-            .from('homeworks')
-            .select(`
-                id,
-                title,
-                subject,
-                due_date,
-                description,
-                file_url,
-                assignments (
-                    users (
-                        email
-                    )
-                )
-            `)
-            .eq('teacher_id', user.id)
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        
-        container.innerHTML = '';
-        
-        if (!homeworks || homeworks.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-icon">📭</div>
-                    <p>Вы еще не создали заданий</p>
-                    <p class="empty-state-hint">Создайте первое задание во вкладке "Создать задание"</p>
-                </div>
-            `;
-            return;
-        }
-        
-        const homeworksList = document.createElement('div');
-        homeworksList.className = 'homeworks-list';
-        
-        homeworks.forEach(hw => {
-            const dueDate = new Date(hw.due_date);
-            const assignedStudent = hw.assignments[0]?.users?.email || 'Не назначено';
-            
-            const homeworkCard = document.createElement('div');
-            homeworkCard.className = 'homework-card';
-            homeworkCard.innerHTML = `
-                <div class="homework-info">
-                    <h3>${hw.title}</h3>
-                    <div class="homework-meta">
-                        <span class="homework-subject">${hw.subject}</span>
-                        <span class="homework-due">Срок: ${dueDate.toLocaleDateString('ru-RU')}</span>
-                    </div>
-                    ${hw.description ? `<p class="homework-description">${hw.description}</p>` : ''}
-                    <div class="assigned-to">
-                        <strong>Назначено:</strong> ${assignedStudent}
-                    </div>
-                    ${hw.file_url ? `
-                        <a href="${hw.file_url}" target="_blank" class="file-link">
-                            📎 Ссылка на файл
-                        </a>
-                    ` : ''}
-                </div>
-                <div class="homework-actions">
-                    <button onclick="deleteHomework('${hw.id}')" class="btn-danger">
-                        🗑️ Удалить
-                    </button>
-                </div>
-            `;
-            
-            homeworksList.appendChild(homeworkCard);
-        });
-        
-        container.appendChild(homeworksList);
-        
-    } catch (error) {
-        console.error('Ошибка загрузки заданий:', error);
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">⚠️</div>
-                <p>Не удалось загрузить задания</p>
-            </div>
-        `;
     }
 }
 
@@ -232,13 +185,6 @@ function setupForms(user) {
     // Форма создания ДЗ
     const homeworkForm = document.getElementById('addHomeworkForm');
     if (homeworkForm) {
-        const dueDateInput = document.getElementById('dueDate');
-        if (dueDateInput) {
-            const today = new Date().toISOString().split('T')[0];
-            dueDateInput.min = today;
-            dueDateInput.value = today;
-        }
-        
         homeworkForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             await createHomework(user);
@@ -273,13 +219,12 @@ async function createHomework(user) {
     const homeworkData = {
         title: document.getElementById('title').value.trim(),
         subject: document.getElementById('subject').value,
-        due_date: document.getElementById('dueDate').value,
         description: document.getElementById('description').value.trim(),
         file_url: document.getElementById('fileUrl').value.trim() || null,
         teacher_id: user.id
     };
     
-    if (!homeworkData.title || !homeworkData.subject || !homeworkData.due_date) {
+    if (!homeworkData.title || !homeworkData.subject) {
         showMessage('Заполните все обязательные поля', 'error', messageEl);
         return;
     }
@@ -314,21 +259,6 @@ async function createHomework(user) {
         // Успех
         showMessage('✅ Задание успешно создано и назначено ученику!', 'success', messageEl);
         form.reset();
-        
-        // Сбрасываем дату на сегодня
-        const dueDateInput = document.getElementById('dueDate');
-        if (dueDateInput) {
-            const today = new Date().toISOString().split('T')[0];
-            dueDateInput.value = today;
-        }
-        
-        // Обновляем список заданий
-        await loadTeacherHomeworks(user);
-        
-        // Переключаем на вкладку с заданиями через 2 секунды
-        setTimeout(() => {
-            document.querySelector('[data-tab="my-homeworks"]').click();
-        }, 2000);
         
     } catch (error) {
         console.error('Ошибка создания ДЗ:', error);
@@ -435,30 +365,3 @@ function showMessage(text, type, element) {
         element.style.display = 'none';
     }, 5000);
 }
-
-// Глобальные функции
-window.deleteHomework = async function(homeworkId) {
-    if (!confirm('Вы уверены, что хотите удалить это задание?')) {
-        return;
-    }
-    
-    try {
-        const { error } = await window.supabase
-            .from('homeworks')
-            .delete()
-            .eq('id', homeworkId);
-        
-        if (error) throw error;
-        
-        alert('Задание успешно удалено');
-        
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user) {
-            await loadTeacherHomeworks(user);
-        }
-        
-    } catch (error) {
-        console.error('Ошибка удаления задания:', error);
-        alert('Ошибка при удалении задания');
-    }
-};

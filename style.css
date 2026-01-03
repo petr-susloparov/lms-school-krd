@@ -165,13 +165,13 @@ textarea.form-control {
     resize: vertical;
 }
 
-/* Список учеников */
+/* Список учеников для учителя */
 .student-select {
     margin: 15px 0;
     padding: 15px;
     background: #f8f9fa;
     border-radius: 8px;
-    max-height: 200px;
+    max-height: 400px;
     overflow-y: auto;
 }
 
@@ -200,6 +200,16 @@ textarea.form-control {
     margin: 0;
 }
 
+.student-option label {
+    margin: 0;
+    cursor: pointer;
+}
+
+.student-option label small {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
 /* Кнопки */
 .btn {
     display: inline-block;
@@ -220,20 +230,6 @@ textarea.form-control {
 
 .btn-primary:hover {
     background: #1d4ed8;
-}
-
-.btn-danger {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.btn-danger:hover {
-    background: #c0392b;
 }
 
 /* Карточки */
@@ -274,11 +270,6 @@ textarea.form-control {
     background: #f0fff4;
 }
 
-.assignment-item.late {
-    border-left-color: #e74c3c;
-    background: #fff5f5;
-}
-
 .assignment-title {
     font-weight: 600;
     color: #2c3e50;
@@ -304,7 +295,7 @@ textarea.form-control {
     font-weight: 500;
 }
 
-.assignment-due {
+.assignment-date {
     font-size: 14px;
 }
 
@@ -315,17 +306,12 @@ textarea.form-control {
     font-weight: 600;
 }
 
-.assignment-item.completed .status-badge {
+.status-badge.completed {
     background: #d1f7c4;
     color: #27ae60;
 }
 
-.assignment-item.late .status-badge {
-    background: #ffcccc;
-    color: #c0392b;
-}
-
-.assignment-item:not(.completed):not(.late) .status-badge {
+.status-badge.pending {
     background: #ffeaa7;
     color: #d35400;
 }
@@ -466,78 +452,6 @@ textarea.form-control {
     display: block;
 }
 
-/* Задания учителя */
-.homeworks-list {
-    display: grid;
-    gap: 20px;
-}
-
-.homework-card {
-    border: 1px solid #e0e6ed;
-    padding: 20px;
-    border-radius: 10px;
-    background: white;
-    transition: border-color 0.3s;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px;
-}
-
-.homework-card:hover {
-    border-color: #2563eb;
-}
-
-.homework-info {
-    flex: 1;
-}
-
-.homework-info h3 {
-    margin: 0 0 8px 0;
-    color: #2c3e50;
-}
-
-.homework-meta {
-    display: flex;
-    gap: 15px;
-    color: #7f8c8d;
-    font-size: 14px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
-}
-
-.homework-subject {
-    background: #2563eb;
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.homework-due {
-    font-size: 14px;
-}
-
-.homework-description {
-    margin: 10px 0;
-    color: #555;
-    line-height: 1.5;
-}
-
-.assigned-to {
-    margin-top: 10px;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    font-size: 14px;
-}
-
-.homework-actions {
-    display: flex;
-    align-items: flex-start;
-}
-
 /* Сообщения */
 .message {
     margin-top: 15px;
@@ -593,36 +507,6 @@ textarea.form-control {
     font-size: 48px;
     margin-bottom: 20px;
     opacity: 0.5;
-}
-
-.empty-state-hint {
-    font-size: 14px;
-    margin-top: 10px;
-    color: #95a5a6;
-}
-
-/* Загрузка */
-.loading {
-    text-align: center;
-    padding: 40px;
-    color: #7f8c8d;
-}
-
-.loading::after {
-    content: '';
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #2563eb;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-left: 10px;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
 }
 
 /* Анимации */
@@ -681,25 +565,16 @@ textarea.form-control {
         grid-template-columns: 1fr;
     }
     
-    .homework-card {
+    .assignment-meta {
         flex-direction: column;
-    }
-    
-    .homework-actions {
-        width: 100%;
-        justify-content: flex-end;
+        align-items: flex-start;
+        gap: 8px;
     }
 }
 
 @media (max-width: 480px) {
     .container {
         padding: 0 10px;
-    }
-    
-    .assignment-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
     }
     
     .tabs {

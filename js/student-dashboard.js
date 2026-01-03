@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const user = await checkAuthorization();
     if (!user) return;
     
-    setupLogoutButton();
+    // Убрали setupLogoutButton - теперь кнопка работает через onclick
     await loadStudentData(user);
 });
 
@@ -34,13 +34,6 @@ async function checkAuthorization() {
     }
 }
 
-function setupLogoutButton() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', window.logout);
-    }
-}
-
 async function loadStudentData(user) {
     try {
         await Promise.all([
@@ -62,18 +55,19 @@ async function loadMyAssignments(user) {
             .select(`
                 id,
                 is_completed,
+                assigned_at,
                 homeworks (
                     id,
                     title,
                     subject,
                     description,
                     file_url,
-                    due_date
+                    created_at
                 )
             `)
             .eq('student_id', user.id)
             .order('is_completed', { ascending: true })
-            .order('homeworks(due_date)', { ascending: true });
+            .order('homeworks(created_at)', { ascending: false }); // Сортировка по дате создания ДЗ
         
         if (error) throw error;
         
@@ -94,27 +88,18 @@ async function loadMyAssignments(user) {
         
         assignments.forEach(assignment => {
             const hw = assignment.homeworks;
-            const dueDate = new Date(hw.due_date);
-            const today = new Date();
-            const daysDiff = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-            
-            let statusClass = assignment.is_completed ? 'completed' : 
-                            daysDiff < 0 ? 'late' : '';
-            
-            let statusText = assignment.is_completed ? 'Выполнено' : 
-                           daysDiff < 0 ? 'Просрочено' :
-                           daysDiff === 0 ? 'Сегодня' :
-                           daysDiff <= 3 ? `Осталось ${daysDiff} дня` :
-                           `Осталось ${daysDiff} дней`;
+            const createdDate = new Date(hw.created_at);
             
             const assignmentItem = document.createElement('div');
-            assignmentItem.className = `assignment-item ${statusClass}`;
+            assignmentItem.className = `assignment-item ${assignment.is_completed ? 'completed' : ''}`;
             assignmentItem.innerHTML = `
                 <div class="assignment-title">${hw.title}</div>
                 <div class="assignment-meta">
                     <span class="assignment-subject">${hw.subject}</span>
-                    <span class="assignment-due">Срок: ${dueDate.toLocaleDateString('ru-RU')}</span>
-                    <span class="status-badge ${statusClass}">${statusText}</span>
+                    <span class="assignment-date">Создано: ${createdDate.toLocaleDateString('ru-RU')}</span>
+                    <span class="status-badge ${assignment.is_completed ? 'completed' : 'pending'}">
+                        ${assignment.is_completed ? 'Выполнено' : 'В работе'}
+                    </span>
                 </div>
                 ${hw.description ? `<p class="assignment-description">${hw.description}</p>` : ''}
                 ${hw.file_url ? `
@@ -177,8 +162,6 @@ async function loadMyResults(user) {
         
         results.forEach(result => {
             const primaryPercent = Math.round((result.primary_score / result.primary_max_score) * 100);
-            const secondaryPercent = result.secondary_score && result.secondary_max_score ? 
-                Math.round((result.secondary_score / result.secondary_max_score) * 100) : null;
             
             let color = '#2563eb';
             if (primaryPercent >= 80) color = '#27ae60';
@@ -191,9 +174,9 @@ async function loadMyResults(user) {
                 <div class="result-score" style="color: ${color};">
                     ${result.primary_score}/${result.primary_max_score}
                 </div>
-                ${secondaryPercent !== null ? `
+                ${result.secondary_score ? `
                     <div class="secondary-score">
-                        ${result.secondary_score}/${result.secondary_max_score}
+                        (${result.secondary_score}/${result.secondary_max_score})
                     </div>
                 ` : ''}
                 <div class="result-subject">${result.subject}</div>
